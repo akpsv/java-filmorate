@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
+
 @FunctionalInterface
-public interface Validation<T> {
-    boolean test(T t) throws ValidationException;
+public interface Validation<T, R> {
+    R validate(T t) throws ValidationException;
 }

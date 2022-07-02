@@ -5,6 +5,7 @@ import lombok.Value;
 import ru.yandex.practicum.filmorate.controllers.Validation;
 
 import java.time.LocalDate;
+import java.util.function.Function;
 
 @Value
 @Builder(toBuilder = true)
@@ -20,18 +21,7 @@ public class User {
     //Дата рождения
     private LocalDate birthday;
 
-    public boolean validate(Validation validationFunction) {
-        return validationFunction.test(this);
+    public User validate(Validation<User, User> validationFunction) {
+        return validationFunction.validate(this);
     }
-
-    public User update(User changedUser) {
-        this.toBuilder()
-                .email(changedUser.email)
-                .login(changedUser.login)
-                .name(changedUser.name)
-                .birthday(changedUser.birthday)
-                .build();
-        return this;
-    }
-
 }

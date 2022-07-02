@@ -28,7 +28,7 @@ class FilmControllerTest {
                 .id(1)
                 .name("Film 1")
                 .description("Some film")
-                .releaseDate("2000-03-26")
+                .releaseDate(LocalDate.of(2000, 03, 26))
                 .duration(60)
                 .build();
 
@@ -41,21 +41,6 @@ class FilmControllerTest {
         //Проверка
         assertEquals(expectedSizeOfGroup, actualSizeOfGroup);
 
-        //Проверка передачи объекта с не правильно заполненным полем releaseDate
-        //Подготовка
-        Film wrongFilm = Film.builder()
-                .id(5)
-                .name("Film 5")
-                .description("Some film")
-                .releaseDate("2020.03.26") //Дата в не правильном формате
-                .duration(60)
-                .build();
-        //Действие
-        //Передаётся дата в поле releaseDate объекта film в не правильном формате
-        DateTimeParseException parseException = assertThrows(DateTimeParseException.class, () -> filmController.addFilm(wrongFilm));
-        //Проверка
-        assertTrue(parseException.getMessage().contains("could not be parsed"));
-
         //Проверка работы валидации
         //1. Навзание не может быть пустым
         //Подготовка
@@ -63,7 +48,7 @@ class FilmControllerTest {
                 .id(10)
                 .name("")                   //Пустое название
                 .description("Some film")
-                .releaseDate("2020-03-26")
+                .releaseDate(LocalDate.of(2000, 03, 26))
                 .duration(60)
                 .build();
         //Действие
@@ -81,7 +66,7 @@ class FilmControllerTest {
                 .id(11)
                 .name("Film 11")
                 .description(text201)       //В описании 201 символ
-                .releaseDate("2020-03-26")
+                .releaseDate(LocalDate.of(2000, 03, 26))
                 .duration(60)
                 .build();
 
@@ -103,7 +88,7 @@ class FilmControllerTest {
                 .id(11)
                 .name("Film 11")
                 .description(text200) //в описании ровно 200 символов
-                .releaseDate("2020-03-26")
+                .releaseDate(LocalDate.of(2000, 03, 26))
                 .duration(60)
                 .build();
 
@@ -126,7 +111,7 @@ class FilmControllerTest {
                 .id(11)
                 .name("Film 11")
                 .description("Some film")
-                .releaseDate("1895-12-27") //Неверная дата
+                .releaseDate(LocalDate.of(1895,12,27)) //Неверная дата
                 .duration(60)
                 .build();
 
@@ -147,7 +132,7 @@ class FilmControllerTest {
                 .id(11)
                 .name("Film 11")
                 .description("Some film")
-                .releaseDate("1895-12-28")
+                .releaseDate(LocalDate.of(1895,12,28))
                 .duration(0) //Неправильная продолжительность
                 .build();
 
@@ -165,10 +150,10 @@ class FilmControllerTest {
     void updateFilmTest() {
         //Подготовка
         Film firstFilm = Film.builder()
-                .id(8)
+                .id(1)
                 .name("Film 1")
                 .description("Some film")
-                .releaseDate("2000-03-26")
+                .releaseDate(LocalDate.of(2000, 03, 26))
                 .duration(60)
                 .build();
         //Обновлённый фильм
@@ -190,7 +175,7 @@ class FilmControllerTest {
                 .id(2)
                 .name("Film 1")
                 .description("Some film")
-                .releaseDate("2000-03-26")
+                .releaseDate(LocalDate.of(2000, 03, 26))
                 .duration(60)
                 .build();
         //Действие
@@ -209,14 +194,14 @@ class FilmControllerTest {
                 .id(1)
                 .name("Film 1")
                 .description("Some film")
-                .releaseDate("2000-03-26")
+                .releaseDate(LocalDate.of(2000, 03, 26))
                 .duration(60)
                 .build();
         Film film2 = Film.builder()
                 .id(2)
                 .name("Film 1")
                 .description("Some film")
-                .releaseDate("2000-03-26")
+                .releaseDate(LocalDate.of(2000, 03, 26))
                 .duration(60)
                 .build();
         filmController.addFilm(film1);
@@ -230,30 +215,4 @@ class FilmControllerTest {
         //Проверка
         assertEquals(expectedSizeOfGroup, actualSizeOfGroup);
     }
-
-    /**
-     * Проверяется правильность конвертации даты из строки в определённом формате в  тип LocalDate
-     */
-    @Test
-    void convertToLocalDateTest() {
-        //Подготовка
-        Film film1 = Film.builder()
-                .id(1)
-                .name("Film 1")
-                .description("Some film")
-                .releaseDate("2000-03-26")
-                .duration(60)
-                .build();
-
-        LocalDate expectedLocalDate = LocalDate.of(2000, 03, 26);
-        //Функция преобразования строки определённого формата в тип LocalDate
-        Converter<String, LocalDate> convertToLocalDateFunc = (string) -> LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
-        //Действия
-        LocalDate actualLocalDate = film1.convertToLocalDate(convertToLocalDateFunc);
-
-        //Проверка
-        assertEquals(expectedLocalDate, actualLocalDate);
-    }
-
 }
