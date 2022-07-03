@@ -16,7 +16,9 @@ import java.util.Map;
 public class FilmController {
     //Группа содержащая все фильмы
     private Map<Integer, Film> films = new HashMap<>();
-    //Функция выполняющая валидацию
+    /**
+     * Функция выполняющая валидацию
+     */
     private Validation<Film, Film> validationFields = (someFilm) -> {
         if (someFilm.getName().isBlank()) {
             throw new ValidationException("Ошибка. Название не заполнено.");
@@ -32,12 +34,25 @@ public class FilmController {
         }
         return someFilm;
     };
+
+    /**
+     * Счётчик содержит последний выданный идентификатор
+     */
     private int idCount = 1;
 
+    /**
+     * Генератор идентификаторов
+     * @return
+     */
     private int idGenerator() {
         return idCount++;
     }
 
+    /**
+     * Создание и валидация экземпляров класса Film и добавление в группу
+     * @param film
+     * @return
+     */
     @PostMapping()
     public Film addFilm(@RequestBody Film film) {
         //Присвоить фильму идентификатор
@@ -56,6 +71,11 @@ public class FilmController {
         }
     }
 
+    /**
+     * Обновление экземпляра класса Film
+     * @param film
+     * @return
+     */
     @PutMapping()
     public Film updateFilm(@RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
@@ -76,6 +96,10 @@ public class FilmController {
         }
     }
 
+    /**
+     * Получение списка фильмов
+     * @return
+     */
     @GetMapping()
     public List<Film> getFilms() {
         return new ArrayList<>(films.values());

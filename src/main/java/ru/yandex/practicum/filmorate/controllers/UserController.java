@@ -19,13 +19,20 @@ public class UserController {
     //Группа всех пользователей
     private Map<Integer, User> users = new HashMap<>();
 
+    //Счётчик содаржит последний выданный идентификатор
     private  int idCount = 1;
 
+    /**
+     * Генератор идентификаторов
+     * @return
+     */
     private int idGenerator() {
         return idCount++;
     }
 
-    //Функция производящая валидацию полей объекта
+    /**
+     * Функция производящая валидацию полей объекта
+     */
     private Validation<User, User> validationFields = (someUser) -> {
         if (someUser.getEmail().isBlank() || !someUser.getEmail().contains("@")) {
             throw new ValidationException("Ошибка. Поле электронной почты пусто или не содержит знак @.");
@@ -38,7 +45,10 @@ public class UserController {
         }
         return someUser;
     };
-    //Функция проверки поля имени и если оно пусто то установки в него значения из поля логин
+
+    /**
+     * Функция проверки поля имени и если оно пусто то установки в него значения из поля логин
+     */
     private Validation<User, User> changeNameIfBlank = (someUser) -> {
         if (someUser.getName().isBlank()){
             return someUser.toBuilder().name(someUser.getLogin()).build();
@@ -46,6 +56,9 @@ public class UserController {
         return someUser;
     } ;
 
+    /**
+     * Создаёт и проводит валидацию экземпляра класса User, а также добавляет его в группу
+     */
     @PostMapping()
     public User addUser(@RequestBody User user) {
         //Присвоить фильму идентификатор
@@ -67,6 +80,11 @@ public class UserController {
         }
     }
 
+    /**
+     * Обновляет экземпляр класса User
+     * @param user
+     * @return
+     */
     @PutMapping()
     public User updateUser(@RequestBody User user) {
         //Есть ли обновляемые пользователь в группе? Есил есть обновить, если нет залогировать и вернуть null.
@@ -86,6 +104,10 @@ public class UserController {
         }
     }
 
+    /**
+     * Получает группу пользователей
+     * @return
+     */
     @GetMapping()
     public List<User> getUsers() {
         return new ArrayList<>(users.values());

@@ -29,6 +29,9 @@ public class Film {
     @PositiveOrZero
     private int duration;
 
+    /**
+     * Принмает функцию выполняющую валидацию
+     */
     public Film validate(Validation<Film, Film> validationFunction){
         return validationFunction.validate(this);
     }

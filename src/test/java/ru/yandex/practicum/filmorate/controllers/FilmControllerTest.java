@@ -11,8 +11,12 @@ import java.time.format.DateTimeParseException;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
+    //Переменная содержит экземпляр проверяемого класса
     private FilmController filmController;
 
+    /**
+     * Создание экземпляра класса
+     */
     @BeforeEach
     void setUp() {
         filmController = new FilmController();

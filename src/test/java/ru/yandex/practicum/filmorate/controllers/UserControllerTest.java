@@ -9,15 +9,22 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
+    //Переменная содержит экземпляр проверяемого класса
     UserController userController;
 
+    /**
+     * Создаётся и присваивается экземпляр класса
+     */
     @BeforeEach
     void setUp() {
         userController = new UserController();
     }
 
+    /**
+     * Проверяется создание и добавление пользователя в группу
+     */
     @Test
-    void addUser() {
+    void addUserTest() {
         //Подготовка
         User user1 = User.builder()
                 .id(1)
@@ -42,7 +49,7 @@ class UserControllerTest {
      * Проверяется содержит ли поле адреса почты адрес и знак @. Если нет то выбрасывается исключение и тест проходит.
      */
     @Test
-    void addUserWithBlankEmailOrWithoutEmailSymbol() {
+    void addUserWithBlankEmailOrWithoutEmailSymbolTest() {
         //Подготовка
         User userWithoutEmail = User.builder()
                 .id(1)
@@ -74,7 +81,7 @@ class UserControllerTest {
      * логин не может быть пустым и содержать пробелы;
      */
     @Test
-    void addUserWithoutLoginOrLoginHasSpaces() {
+    void addUserWithoutLoginOrLoginHasSpacesTest() {
         //Подготовка
         User userWithoutLogin = User.builder()
                 .id(1)
@@ -107,7 +114,7 @@ class UserControllerTest {
      * Проверяется установка поля name если в нём отсутсвует значение
      */
     @Test
-    void addUserWhenNameIsBlankSetItToLogin() {
+    void addUserWhenNameIsBlankSetItToLoginTest() {
         //Подготовка
         User userWithoutName = User.builder()
                 .id(1)
@@ -150,7 +157,7 @@ class UserControllerTest {
      * Проверяется обновление пользователя. Обновляется только если пользователь с таким идентификатором уже есть в группе.
      */
     @Test
-    void updateUser() {
+    void updateUserTest() {
         //Подготовка
         User user1 = User.builder()
                 .id(1)
@@ -179,8 +186,11 @@ class UserControllerTest {
         assertEquals(expectedUser, actualUser);
     }
 
+    /**
+     * Проверяется получение всех пользователей
+     */
     @Test
-    void getUsers() {
+    void getUsersTest() {
         //Подготовка
         User user1 = User.builder()
                 .id(1)

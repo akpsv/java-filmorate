@@ -30,6 +30,11 @@ public class User {
     @PastOrPresent
     private LocalDate birthday;
 
+    /**
+     * Принмает функцию выполняющую валидацию
+     * @param validationFunction
+     * @return
+     */
     public User validate(Validation<User, User> validationFunction) {
         return validationFunction.validate(this);
     }
