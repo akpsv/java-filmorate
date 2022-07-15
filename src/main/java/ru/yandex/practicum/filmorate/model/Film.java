@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Value()
 @Builder(toBuilder = true)
@@ -28,6 +29,10 @@ public class Film {
     @NotBlank
     @PositiveOrZero
     private int duration;
+
+    //TODO: доделать
+    //Содержит идентификаторы пользователей поставивших лайк фильму
+    Set<Long> likes;
 
     /**
      * Принмает функцию выполняющую валидацию

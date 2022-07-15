@@ -9,13 +9,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.function.Function;
 
 @Value
 @Builder(toBuilder = true)
 public class User {
     //идентификатор
-    private int id;
+    private long id;
     //Электронная почта
     @NotBlank
     @Email
@@ -29,6 +30,11 @@ public class User {
     //Дата рождения
     @PastOrPresent
     private LocalDate birthday;
+
+    //TODO: доделать
+    //Содаржит список пользователей - друзей
+    Set<Long> users;
+
 
     /**
      * Принмает функцию выполняющую валидацию
