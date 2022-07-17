@@ -15,7 +15,7 @@ import java.util.Set;
 @Builder(toBuilder = true)
 public class Film {
     //Идентификатор
-    private int id;
+    private Long id;
     //Название
     @NotBlank
     private String name;

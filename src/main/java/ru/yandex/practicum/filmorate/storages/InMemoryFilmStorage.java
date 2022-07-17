@@ -20,7 +20,7 @@ import java.util.Map;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     //Группа содержащая все фильмы
-    private Map<Integer, Film> films = new HashMap<>();
+    private Map<Long, Film> films = new HashMap<>();
     /**
      * Функция выполняющая валидацию
      */
@@ -49,7 +49,7 @@ public class InMemoryFilmStorage implements FilmStorage {
      * Генератор идентификаторов
      * @return
      */
-    private int idGenerator() {
+    private long idGenerator() {
         return idCount++;
     }
 
@@ -61,7 +61,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film addFilm(Film film) {
         //Присвоить фильму идентификатор
-        int count = idCount;
+        long count = idCount;
         film = film.toBuilder().id(idGenerator()).build();
 
         //Добавление фильма в коллекцию если он прошёл валидацию иначе запись об ошибке в лог

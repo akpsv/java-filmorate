@@ -1,8 +1,9 @@
 package ru.yandex.practicum.filmorate.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.util.*;
 
@@ -18,23 +19,85 @@ public class UserService {
 //    одобрять заявки в друзья — добавляем сразу. То есть если Лена стала другом Саши,
 //    то это значит, что Саша теперь друг Лены.
 
-    public Optional<User> addUserToFriends(User user, long userId){
-        Set<Long> newFriendsGroup = user.getUsers();
+    UserStorage userStorage;
+
+    @Autowired
+    public UserService(UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
+
+    public User addUser(User user){
+        return userStorage.addUser(user).get();
+    }
+
+    public User updateUser(User user){
+        return userStorage.updateUser(user).get();
+    }
+
+    public List<User> getUsers(){
+        return userStorage.getUsers().get();
+    }
+
+    /**
+     * Добавить пользователя в друзья
+     * @param user
+     * @param userId
+     * @return
+     */
+    public static Optional<User> addUserToFriends(User user, long userId){
+
+
+        Set<Long> newFriendsGroup = user.getFriends();
+        //Если в поле нет списка друзей, а соответственно нет и друзей, надо добавить идентификатор друга
+        if (newFriendsGroup == null) {
+            newFriendsGroup = new HashSet<>();
+            newFriendsGroup.add(userId);
+            user = user.toBuilder().friends(newFriendsGroup).build();
+            return Optional.of(user);
+        }
         if (newFriendsGroup.add(userId)) {
-            user = user.toBuilder().users(newFriendsGroup).build();
+            user = user.toBuilder().friends(newFriendsGroup).build();
             return Optional.of(user);
         }
         return Optional.empty();
     }
 
-    public User removeUserFromFriends(User user, int userId){
-        throw new NullPointerException("Method removeUserFromFriends not implemented");
+    /**
+     * Удалить пользователя из списка друзей
+     * @param user
+     * @param userId
+     * @return
+     */
+    public static Optional<User> removeUserFromFriends(User user, long userId){
+        Set<Long> friendsOfUser = user.getFriends();
+        if (friendsOfUser == null) {
+            return Optional.empty();
+        }
+        if (friendsOfUser.remove(userId)) {
+            user = user.toBuilder().friends(friendsOfUser).build();
+            return Optional.of(user);
+        }
+        return Optional.empty();
     }
 
-    public List<User> getFriends(User user){
+    /**
+     * Получить всех друзей
+     * @param user
+     * @return
+     */
+    public static List<Long> getFriends(User user){
+        return new ArrayList<>(user.getFriends());
+    }
 
-
-        throw new NullPointerException("Method getFriends not implemented");
+    /**
+     * Получить пользователя по идентификатору
+     * @param id - идентификатор искомого пользователя
+     * @return - возвращается пользователь или ничего
+     */
+    public Optional<User> getUserById(long id){
+        return userStorage.getUsers().get().stream()
+                .filter(user -> user.getId() == id)
+                .findAny();
     }
 
 }

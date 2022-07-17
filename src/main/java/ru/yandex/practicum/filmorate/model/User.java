@@ -10,13 +10,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
 import java.util.Set;
-import java.util.function.Function;
 
 @Value
 @Builder(toBuilder = true)
 public class User {
     //идентификатор
-    private long id;
+    private Long id;
     //Электронная почта
     @NotBlank
     @Email
@@ -33,7 +32,7 @@ public class User {
 
     //TODO: доделать
     //Содаржит список пользователей - друзей
-    Set<Long> users;
+    Set<Long> friends;
 
 
     /**

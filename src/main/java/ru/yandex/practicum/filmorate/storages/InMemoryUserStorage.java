@@ -2,34 +2,27 @@ package ru.yandex.practicum.filmorate.storages;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.controllers.Validation;
 import ru.yandex.practicum.filmorate.controllers.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
     //Группа всех пользователей
-    private Map<Integer, User> users = new HashMap<>();
+    private Map<Long, User> users = new HashMap<>();
 
     //Счётчик содаржит последний выданный идентификатор
-    private  int idCount = 1;
+    private  long idCount = 1;
 
     /**
      * Генератор идентификаторов
      * @return
      */
-    private int idGenerator() {
+    private long idGenerator() {
         return idCount++;
     }
 
@@ -63,7 +56,7 @@ public class InMemoryUserStorage implements UserStorage {
      * Создаёт и проводит валидацию экземпляра класса User, а также добавляет его в группу
      */
     @Override
-    public User addUser(User user) {
+    public Optional<User> addUser(User user) {
         //Присвоить фильму идентификатор
         user = user.toBuilder().id(idGenerator()).build();
 
@@ -76,7 +69,7 @@ public class InMemoryUserStorage implements UserStorage {
             user = user.validate(changeNameIfBlank);
             users.put(user.getId(), user);
             log.info("В группу пользователей добавлен пользователь: {}", user.getLogin());
-            return user;
+            return Optional.of(user);
         } catch (ValidationException exception) {
             log.warn(exception.getMessage(), exception);
             throw exception;
@@ -85,22 +78,24 @@ public class InMemoryUserStorage implements UserStorage {
 
     /**
      * Обновляет экземпляр класса User
+     *
      * @param user
      * @return
      */
     @Override
-    public User updateUser(User user) {
+    public Optional<User> updateUser(User user) {
         //Есть ли обновляемые пользователь в группе? Есил есть обновить, если нет залогировать и вернуть null.
         if (!users.containsKey(user.getId())) {
             log.info("Пользователя {} нет в группе.", user);
-            throw new ValidationException("Ошибка обновления пользователя. Такого пользователя нет в группе.");
+//            throw new ValidationException("Ошибка обновления пользователя. Такого пользователя нет в группе.");
+            return Optional.empty();
         }
         //Произвести валидацию пользователя и обновить его данные, если валидация не пройдена залогировать
         try {
             user.validate(validationFields);
             users.put(user.getId(), user);
             log.info("Данные пользователя {} обновлены .", user.getLogin());
-            return user;
+            return Optional.of(user);
         } catch (ValidationException exception) {
             log.warn(exception.getMessage(), exception);
             throw exception;
@@ -112,7 +107,7 @@ public class InMemoryUserStorage implements UserStorage {
      * @return
      */
     @Override
-    public List<User> getUsers() {
-        return new ArrayList<>(users.values());
+    public Optional<List<User>> getUsers() {
+        return Optional.of(new ArrayList<>(users.values()));
     }
 }
