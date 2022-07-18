@@ -57,8 +57,6 @@ public class InMemoryUserStorage implements UserStorage {
      */
     @Override
     public Optional<User> addUser(User user) {
-        //Присвоить фильму идентификатор
-        user = user.toBuilder().id(idGenerator()).build();
 
         //Произвести валидацию пользователя и добавить его в группу,
         // если валидация не пройдена залогировать и выбросить исключение
@@ -67,6 +65,9 @@ public class InMemoryUserStorage implements UserStorage {
             user.validate(validationFields);
             //Проверить поле имени. Если оно не заполнено, то установить значение из поля логин
             user = user.validate(changeNameIfBlank);
+            //Присвоить пользователю идентификатор
+            user = user.toBuilder().id(idGenerator()).friends(new HashSet<>()).build();
+
             users.put(user.getId(), user);
             log.info("В группу пользователей добавлен пользователь: {}", user.getLogin());
             return Optional.of(user);

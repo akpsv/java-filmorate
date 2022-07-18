@@ -21,17 +21,17 @@ public class UserController {
     }
 
     @PostMapping()
-    public User addUser(@RequestBody User user){
+    public User addUser(@RequestBody User user) {
         return userService.addUser(user);
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user){
+    public User updateUser(@RequestBody User user) {
         return userService.updateUser(user);
     }
 
     @GetMapping
-    public List<User> getUsers(){
+    public List<User> getUsers() {
         return userService.getUsers();
     }
 
@@ -52,18 +52,12 @@ public class UserController {
      * @param id       - идентификатор пользователя которому добавляется друг
      * @param friendId - идентификатор добавляемого друга
      * @return - true если друг добавлен, false если друг уже был в списке
-     *          ислкючение NoSuchElementException если пользователь не найден
+     * ислкючение NoSuchElementException если пользователь не найден
      */
     @PutMapping("/{id}/friends/{friendId}")
     public boolean addUserToFriends(@PathVariable long id, @PathVariable long friendId) {
         //TODO: process exception
-        //Если пользователь не найден вернётся исключение NoSuchElementException
-        User userById = userService.getUserById(id).get();
-        //Получить группу друзей
-        Set<Long> friends = userById.getFriends();
-        //Добавить идентификатор нового друга в группу, и вернуть true если его идентификатора ещё нет в группе, иначе вернуть false
-        if (friends.add(friendId)) {
-            userById = userById.toBuilder().friends(friends).build();
+        if (userService.addUserToFriends(id, friendId)){
             return true;
         }
         return false;
@@ -97,10 +91,9 @@ public class UserController {
      * @return - список друзей
      */
     @GetMapping("/{id}/friends")
-    public Set<Long> getFriendsForUser(@PathVariable long id) {
+    public List<User> getFriendsForUser(@PathVariable long id) {
         //TODO: handle NoSuchElementException
-        User user = userService.getUserById(id).get();
-        return user.getFriends();
+        return userService.getFriendsForUser(id);
     }
 
     /**
@@ -111,11 +104,8 @@ public class UserController {
      * @return
      */
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<Long> getCommonFriendsForUser(@PathVariable long id, @PathVariable long otherId) {
+    public List<User> getCommonFriendsForUser(@PathVariable long id, @PathVariable long otherId) {
         //TODO: handle NoSuchElementException
-        User user = userService.getUserById(id).get();
-        Set<Long> friendsBoth = new HashSet<>(user.getFriends());
-        friendsBoth.retainAll(userService.getUserById(otherId).get().getFriends());
-        return friendsBoth;
+        return userService.getCommonFriendsForUser(id, otherId);
     }
 }
