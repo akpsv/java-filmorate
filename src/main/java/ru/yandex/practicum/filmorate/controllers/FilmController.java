@@ -21,61 +21,70 @@ public class FilmController {
         this.filmService = filmService;
     }
 
+    @GetMapping
+    public List<Film> getFilms() {
+        return filmService.getFilms().get();
+    }
+
+    @PostMapping
+    public Film addFilm(@RequestBody Film film) {
+        return filmService.addFilm(film).get();
+    }
+
+    @PutMapping
+    public Film updateFilm(@RequestBody Film film) {
+        return filmService.updateFilm(film).get();
+    }
+
+
     /**
      * Получить фильм по идентификатору
+     *
      * @param id
      * @return
      */
     @GetMapping("/{id}")
-    public Film getFilmById(@PathVariable long id){
+    public Film getFilmById(@PathVariable long id) {
         return filmService.getFilmById(id).get();
     }
 
     /**
      * Добавить лайк фильму от пользователя
+     *
      * @param id
      * @param userId
      * @return
      */
     @PutMapping("/{id}/like/{userId}")
-    public boolean addLike(@PathVariable long id, @PathVariable long userId){
+    public boolean addLike(@PathVariable long id, @PathVariable long userId) {
         //TODO: handle NoSuchElementException
-        Film film = filmService.getFilmById(id).get();
-        Set<Long> likes = film.getLikes();
-        if (likes.add(userId)) {
-            film = film.toBuilder().likes(likes).build();
-            return true;
-        }
-        return false;
+        return filmService.addLike(id, userId);
     }
 
     /**
      * Удалить лайк фульму от пользователя
+     *
      * @param id
      * @param userId
      * @return
      */
     @DeleteMapping("/{id}/like/{userId}")
-    public boolean deleteLike(@PathVariable long id, @PathVariable long userId){
+    public boolean deleteLike(@PathVariable long id, @PathVariable long userId) {
         //TODO: handle NoSuchElementException
-        Film film = filmService.getFilmById(id).get();
-        Set<Long> likes = film.getLikes();
-        if (likes.remove(userId)){
-            film = film.toBuilder().likes(likes).build();
-            return true;
-        }
-        return false;
+        return filmService.deleteLike(id, userId);
     }
 
     /**
      * Вернуть список из первых count фильмов по количеству лайков.
      * Если значение count не задано, вернуть первые 10 фильмов
+     *
      * @param count
      * @return
      */
     @GetMapping("/popular")
-    public List<Film> getFilms(@RequestParam(defaultValue="10") int count){
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
         //TODO: handle NoSuchElementException
-        return filmService.getBestFilms(count).get();
+        List<Film>  list = filmService.getBestFilms(count).get();
+        return list;
     }
 }

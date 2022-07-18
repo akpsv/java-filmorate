@@ -41,7 +41,7 @@ class InMemoryFilmStorageTest {
         //Действия
         //Передаётся правильно сформированный объект
         inMemoryFilmStorage.addFilm(film1);
-        int actualSizeOfGroup = inMemoryFilmStorage.getFilms().size();
+        int actualSizeOfGroup = inMemoryFilmStorage.getFilms().get().size();
         //Проверка
         assertEquals(expectedSizeOfGroup, actualSizeOfGroup);
 
@@ -99,7 +99,7 @@ class InMemoryFilmStorageTest {
         int expectedSizeOfGroup = 1;
         //Действия
         inMemoryFilmStorage.addFilm(filmWithLength200);
-        int actualSizeOfGroup = inMemoryFilmStorage.getFilms().size();
+        int actualSizeOfGroup = inMemoryFilmStorage.getFilms().get().size();
 
         //Проверка
         assertEquals(expectedSizeOfGroup, actualSizeOfGroup);
@@ -168,7 +168,7 @@ class InMemoryFilmStorageTest {
         inMemoryFilmStorage.addFilm(firstFilm);
 
         //Действия
-        Film actualFilm = inMemoryFilmStorage.updateFilm(expectedFilm);
+        Film actualFilm = inMemoryFilmStorage.updateFilm(expectedFilm).get();
 
         //Проверка
         assertEquals(expectedFilm, actualFilm);
@@ -214,7 +214,7 @@ class InMemoryFilmStorageTest {
         int expectedSizeOfGroup = 2;
 
         //Действия
-        int actualSizeOfGroup = inMemoryFilmStorage.getFilms().size();
+        int actualSizeOfGroup = inMemoryFilmStorage.getFilms().get().size();
 
         //Проверка
         assertEquals(expectedSizeOfGroup, actualSizeOfGroup);

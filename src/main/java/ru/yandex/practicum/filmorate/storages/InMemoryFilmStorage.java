@@ -2,19 +2,12 @@ package ru.yandex.practicum.filmorate.storages;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.controllers.Validation;
 import ru.yandex.practicum.filmorate.controllers.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -55,21 +48,21 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     /**
      * Создание и валидация экземпляров класса Film и добавление в группу
+     *
      * @param film
      * @return
      */
     @Override
-    public Film addFilm(Film film) {
-        //Присвоить фильму идентификатор
-        long count = idCount;
-        film = film.toBuilder().id(idGenerator()).build();
-
+    public Optional<Film> addFilm(Film film) {
         //Добавление фильма в коллекцию если он прошёл валидацию иначе запись об ошибке в лог
         try {
             film.validate(validationFields);
+            //Присвоить фильму идентификатор
+            film = film.toBuilder().id(idGenerator()).likes(new HashSet<>()).build();
+            //Добавить фмльм в общую группу
             films.put(film.getId(), film);
             log.info("В коллекцию добавлен фильм {}", film);
-            return film;
+            return Optional.of(film);
         } catch (ValidationException exception) {
             log.warn(exception.getMessage(), exception);
             throw exception;
@@ -82,19 +75,23 @@ public class InMemoryFilmStorage implements FilmStorage {
      * @return
      */
     @Override
-    public Film updateFilm(Film film) {
+    public Optional<Film> updateFilm(Film film) {
         if (!films.containsKey(film.getId())) {
             log.info("Фильм {} не будет обновлён. Такого фильма нет в коллекции.", film);
-            throw new ValidationException("Ошибка обновления фильма. Такого фильма нет в коллекции.");
+            throw new NoSuchElementException("Ошибка обновления фильма. Такого фильма нет в коллекции.");
         }
         //Добавление фильма в коллекцию если он прошёл валидацию иначе запись об ошибке в лог
         try {
             //Проверка правильности заполнения полей объекта
             film.validate(validationFields);
+            //Создание хэш-множества если поле лайков содержит null
+            if (film.getLikes() == null){
+                film = film.toBuilder().likes(new HashSet<>()).build();
+            }
             //Обновление объекта
             films.put(film.getId(), film);
             log.info("В коллекции обновлён фильм {}", film);
-            return film;
+            return Optional.of(film);
         } catch (ValidationException exception) {
             log.warn(exception.getMessage(), exception);
             throw exception;
@@ -106,7 +103,7 @@ public class InMemoryFilmStorage implements FilmStorage {
      * @return
      */
     @Override
-    public List<Film> getFilms() {
-        return new ArrayList<>(films.values());
+    public Optional<List<Film>> getFilms() {
+        return Optional.of(new ArrayList<>(films.values()));
     }
 }
