@@ -148,47 +148,6 @@ class InMemoryFilmStorageTest {
     }
 
     /**
-     * Проверяется выполнение обновления фильма в коллекции
-     */
-    @Test
-    void updateFilmTest() {
-        //Подготовка
-        Film firstFilm = Film.builder()
-                .id(1L)
-                .name("Film 1")
-                .description("Some film")
-                .releaseDate(LocalDate.of(2000, 03, 26))
-                .duration(60)
-                .build();
-        //Обновлённый фильм
-        Film expectedFilm = firstFilm.toBuilder()
-                .name("Updated Film 1")
-                .build();
-        //Добавление первого фильма в коллекцию
-        inMemoryFilmStorage.addFilm(firstFilm);
-
-        //Действия
-        Film actualFilm = inMemoryFilmStorage.updateFilm(expectedFilm).get();
-
-        //Проверка
-        assertEquals(expectedFilm, actualFilm);
-
-        //Проверка отказа в обновлении при передаче фильма которого нет в коллекции
-        //Подготовка
-        Film film2 = Film.builder()
-                .id(2L)
-                .name("Film 1")
-                .description("Some film")
-                .releaseDate(LocalDate.of(2000, 03, 26))
-                .duration(60)
-                .build();
-        //Действие
-        ValidationException validationException = assertThrows(ValidationException.class, ()-> inMemoryFilmStorage.updateFilm(film2));
-        //Проверка
-        assertTrue(validationException.getMessage().contains("Ошибка обновления фильма"));
-    }
-
-    /**
      * Проверяется получение всех фильмов из коллекции
      */
     @Test
