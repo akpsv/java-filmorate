@@ -30,10 +30,8 @@ public class User {
     @PastOrPresent
     private LocalDate birthday;
 
-    //TODO: доделать
     //Содаржит список пользователей - друзей
     Set<Long> friends;
-
 
     /**
      * Принмает функцию выполняющую валидацию

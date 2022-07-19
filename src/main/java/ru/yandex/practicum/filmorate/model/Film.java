@@ -30,7 +30,6 @@ public class Film {
     @PositiveOrZero
     private int duration;
 
-
     //Содержит идентификаторы пользователей поставивших лайк фильму
     Set<Long> likes;
 

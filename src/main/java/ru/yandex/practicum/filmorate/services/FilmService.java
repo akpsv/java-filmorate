@@ -2,25 +2,14 @@ package ru.yandex.practicum.filmorate.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
-import ru.yandex.practicum.filmorate.storages.InMemoryUserStorage;
 
-import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
-//    будет отвечать за операции с фильмами,
-//    — добавление лайк,
-//    - удаление лайка,
-//    - вывод 10 наиболее популярных фильмов по количеству лайков.
-
-//    Пусть пока каждый пользователь может поставить лайк фильму только один раз.
-
     private FilmStorage filmStorage;
 
     @Autowired
@@ -37,15 +26,32 @@ public class FilmService {
         return filmStorage;
     }
 
-    public Optional<List<Film>> getFilms(){
+    /**
+     * Получить фильмы из группы
+     *
+     * @return
+     */
+    public Optional<List<Film>> getFilms() {
         return filmStorage.getFilms();
     }
 
-    public Optional<Film> addFilm(Film film){
+    /**
+     * Добавить фильм в группу
+     *
+     * @param film
+     * @return
+     */
+    public Optional<Film> addFilm(Film film) {
         return filmStorage.addFilm(film);
     }
 
-    public Optional<Film> updateFilm(Film film){
+    /**
+     * Обновить существующий фильм в группе
+     *
+     * @param film
+     * @return
+     */
+    public Optional<Film> updateFilm(Film film) {
         return filmStorage.updateFilm(film);
     }
 
@@ -53,13 +59,12 @@ public class FilmService {
      * Добавить лайк в группу.
      * Лайк добавляется косвенно, через добавление идентификатора пользователя его поставившего
      */
-
-    public boolean addLike(long id, long userId){
+    public boolean addLike(long id, long userId) {
         //Если фильма нет то возращается NoSuchElementException
         Film film = getFilmById(id).get();
         Set<Long> likes = film.getLikes();
         //Если в списке нет ни одного лайка и соответственно вместо списка null, то присваивается список
-        if (likes == null){
+        if (likes == null) {
             likes = new HashSet<>();
         }
         if (likes.add(userId)) {
@@ -90,17 +95,18 @@ public class FilmService {
     }
 
     /**
-     * Получить 10 фильмов в порядке уменьшения количества лайков
+     * Получить count фильмов в порядке уменьшения количества лайков
      *
      * @return
      */
     public Optional<List<Film>> getBestFilms(int count) {
+        //Может выдавать NoSuchElementException
         if (count <= 0) {
             count = 10;
         }
         //Сравнение фильмов по количеству лайков в возрастающем порядке
         Comparator<Film> compareLikes = Comparator.comparing(film -> film.getLikes().size());
-        //Возврат 10 фильмов в убывающем по количеству лайков порядке
+        //Возврат фильмов в убывающем по количеству лайков порядке
         List<Film> films = filmStorage.getFilms().get().stream()
                 .sorted(compareLikes.reversed())
                 .limit(count)
@@ -115,13 +121,21 @@ public class FilmService {
      * @return - фильм или ничего
      */
     public Optional<Film> getFilmById(long id) {
+        //Может выдавать NoSuchElementException
         return filmStorage.getFilms().get().stream()
                 .filter((film) -> film.getId() == id)
                 .findAny();
     }
 
+    /**
+     * Удалить лайк
+     *
+     * @param id
+     * @param userId
+     * @return
+     */
     public boolean deleteLike(long id, long userId) {
-        //TODO: handle NoSuchElementException
+        //Может выдавать NoSuchElementException
         Film film = getFilmById(id).get();
 
         Set<Long> likes = film.getLikes();

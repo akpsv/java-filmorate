@@ -21,16 +21,30 @@ public class FilmController {
         this.filmService = filmService;
     }
 
+    /**
+     * Получить фильмы
+     * @return
+     */
     @GetMapping
     public List<Film> getFilms() {
         return filmService.getFilms().get();
     }
 
+    /**
+     * Добавить фильм в группу
+     * @param film
+     * @return - добавленный фильм
+     */
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
         return filmService.addFilm(film).get();
     }
 
+    /**
+     * Обновить фильм в группе
+     * @param film
+     * @return
+     */
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
         return filmService.updateFilm(film).get();
@@ -57,7 +71,6 @@ public class FilmController {
      */
     @PutMapping("/{id}/like/{userId}")
     public boolean addLike(@PathVariable long id, @PathVariable long userId) {
-        //TODO: handle NoSuchElementException
         return filmService.addLike(id, userId);
     }
 
@@ -70,7 +83,6 @@ public class FilmController {
      */
     @DeleteMapping("/{id}/like/{userId}")
     public boolean deleteLike(@PathVariable long id, @PathVariable long userId) {
-        //TODO: handle NoSuchElementException
         return filmService.deleteLike(id, userId);
     }
 
@@ -83,8 +95,6 @@ public class FilmController {
      */
     @GetMapping("/popular")
     public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
-        //TODO: handle NoSuchElementException
-        List<Film>  list = filmService.getBestFilms(count).get();
-        return list;
+        return filmService.getBestFilms(count).get();
     }
 }

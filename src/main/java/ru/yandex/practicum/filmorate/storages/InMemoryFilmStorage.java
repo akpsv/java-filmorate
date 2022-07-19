@@ -40,6 +40,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     /**
      * Генератор идентификаторов
+     *
      * @return
      */
     private long idGenerator() {
@@ -71,6 +72,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     /**
      * Обновление экземпляра класса Film
+     *
      * @param film
      * @return
      */
@@ -85,7 +87,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             //Проверка правильности заполнения полей объекта
             film.validate(validationFields);
             //Создание хэш-множества если поле лайков содержит null
-            if (film.getLikes() == null){
+            if (film.getLikes() == null) {
                 film = film.toBuilder().likes(new HashSet<>()).build();
             }
             //Обновление объекта
@@ -100,6 +102,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     /**
      * Получение списка фильмов
+     *
      * @return
      */
     @Override

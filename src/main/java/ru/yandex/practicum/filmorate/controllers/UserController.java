@@ -13,23 +13,37 @@ import java.util.*;
 @RequestMapping("/users")
 public class UserController {
 
-    UserService userService;
+    private UserService userService;
 
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
+    /**
+     * Добавить пользователя в группу
+     * @param user
+     * @return
+     */
     @PostMapping()
     public User addUser(@RequestBody User user) {
         return userService.addUser(user);
     }
 
+    /**
+     * Обновить пользователя в группе
+     * @param user
+     * @return
+     */
     @PutMapping
     public User updateUser(@RequestBody User user) {
         return userService.updateUser(user);
     }
 
+    /**
+     * Получить группу пользователей
+     * @return
+     */
     @GetMapping
     public List<User> getUsers() {
         return userService.getUsers();
@@ -56,11 +70,7 @@ public class UserController {
      */
     @PutMapping("/{id}/friends/{friendId}")
     public boolean addUserToFriends(@PathVariable long id, @PathVariable long friendId) {
-        //TODO: process exception
-        if (userService.addUserToFriends(id, friendId)){
-            return true;
-        }
-        return false;
+        return userService.addUserToFriends(id, friendId);
     }
 
     /**
@@ -72,16 +82,7 @@ public class UserController {
      */
     @DeleteMapping("/{id}/friends/{friendId}")
     public boolean deleteUserFromFriends(@PathVariable long id, @PathVariable long friendId) {
-        //TODO: handle exception
-        //Если нет пользователя у которого из друзей удаляется друг, то выбрасывается исключение NoSuchElementException
-        User user = userService.getUserById(id).get();
-        Set<Long> friends = user.getFriends();
-        //Если друг удалился, то вернуть true, если его не было в списке, то вернуть false
-        if (friends.remove(friendId)) {
-            user = user.toBuilder().friends(friends).build();
-            return true;
-        }
-        return false;
+        return userService.deleteUserFromFriends(id, friendId);
     }
 
     /**
@@ -92,7 +93,6 @@ public class UserController {
      */
     @GetMapping("/{id}/friends")
     public List<User> getFriendsForUser(@PathVariable long id) {
-        //TODO: handle NoSuchElementException
         return userService.getFriendsForUser(id);
     }
 
@@ -105,7 +105,6 @@ public class UserController {
      */
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriendsForUser(@PathVariable long id, @PathVariable long otherId) {
-        //TODO: handle NoSuchElementException
         return userService.getCommonFriendsForUser(id, otherId);
     }
 }

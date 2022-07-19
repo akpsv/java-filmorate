@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
@@ -11,44 +10,21 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-//    будет отвечать за такие операции с пользователями, как
-//
-//    добавление в друзья,
-//    удаление из друзей,
-//    вывод списка общих друзей.
-//
-//    Пока пользователям не надо
-//    одобрять заявки в друзья — добавляем сразу. То есть если Лена стала другом Саши,
-//    то это значит, что Саша теперь друг Лены.
-
-    UserStorage userStorage;
+    private UserStorage userStorage;
 
     @Autowired
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
-    public User addUser(User user){
-        return userStorage.addUser(user).get();
-    }
-
-    public User updateUser(User user){
-        return userStorage.updateUser(user).get();
-    }
-
-    public List<User> getUsers(){
-        return userStorage.getUsers().get();
-    }
-
     /**
      * Добавить пользователя в друзья
+     *
      * @param user
      * @param userId
      * @return
      */
-    public static Optional<User> addUserToFriends(User user, long userId){
-
-
+    public static Optional<User> addUserToFriends(User user, long userId) {
         Set<Long> newFriendsGroup = user.getFriends();
         //Если в поле нет списка друзей, а соответственно нет и друзей, надо добавить идентификатор друга
         if (newFriendsGroup == null) {
@@ -66,11 +42,12 @@ public class UserService {
 
     /**
      * Удалить пользователя из списка друзей
+     *
      * @param user
      * @param userId
      * @return
      */
-    public static Optional<User> removeUserFromFriends(User user, long userId){
+    public static Optional<User> removeUserFromFriends(User user, long userId) {
         Set<Long> friendsOfUser = user.getFriends();
         if (friendsOfUser == null) {
             return Optional.empty();
@@ -84,26 +61,56 @@ public class UserService {
 
     /**
      * Получить всех друзей
+     *
      * @param user
      * @return
      */
-    public static List<Long> getFriends(User user){
+    public static List<Long> getFriends(User user) {
         return new ArrayList<>(user.getFriends());
     }
 
     /**
+     * Добавить пользователя в грппу
+     *
+     * @param user
+     * @return
+     */
+    public User addUser(User user) {
+        return userStorage.addUser(user).get();
+    }
+
+    /**
+     * Обновить существующего пользователя в группе
+     *
+     * @param user
+     * @return
+     */
+    public User updateUser(User user) {
+        return userStorage.updateUser(user).get();
+    }
+
+    /**
+     * Получить пользователей из группы
+     *
+     * @return
+     */
+    public List<User> getUsers() {
+        return userStorage.getUsers().get();
+    }
+
+    /**
      * Получить пользователя по идентификатору
+     *
      * @param id - идентификатор искомого пользователя
      * @return - возвращается пользователь или ничего
      */
-    public Optional<User> getUserById(long id){
+    public Optional<User> getUserById(long id) {
         return userStorage.getUsers().get().stream()
                 .filter(user -> user.getId() == id)
                 .findAny();
     }
 
     public boolean addUserToFriends(long id, long friendId) {
-        //TODO: process exception
         //Если пользователь не найден вернётся исключение NoSuchElementException
         User mainUser = getUserById(id).get();
         //Получить группу друзей основного пользователя
@@ -133,7 +140,7 @@ public class UserService {
     }
 
     public List<User> getFriendsForUser(long id) {
-        //TODO: handle NoSuchElementException
+        //Может выдавать NoSuchElementException
         User user = getUserById(id).get();
         return user.getFriends().stream()
                 .map(this::getUserById)
@@ -142,7 +149,7 @@ public class UserService {
     }
 
     public List<User> getCommonFriendsForUser(long id, long otherId) {
-        //TODO: handle NoSuchElementException
+        //Может выдавать NoSuchElementException
         User user = getUserById(id).get();
         if (user.getFriends() == null) {
             user = user.toBuilder().friends(new HashSet<>()).build();
@@ -156,4 +163,15 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public boolean deleteUserFromFriends(long id, long friendId) {
+        //Если нет пользователя у которого из друзей удаляется друг, то выбрасывается исключение NoSuchElementException
+        User user = getUserById(id).get();
+        Set<Long> friends = user.getFriends();
+        //Если друг удалился, то вернуть true, если его не было в списке, то вернуть false
+        if (friends.remove(friendId)) {
+            user = user.toBuilder().friends(friends).build();
+            return true;
+        }
+        return false;
+    }
 }

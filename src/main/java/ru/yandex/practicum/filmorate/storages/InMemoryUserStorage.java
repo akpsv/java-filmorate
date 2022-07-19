@@ -16,16 +16,7 @@ public class InMemoryUserStorage implements UserStorage {
     private Map<Long, User> users = new HashMap<>();
 
     //Счётчик содаржит последний выданный идентификатор
-    private  long idCount = 1;
-
-    /**
-     * Генератор идентификаторов
-     * @return
-     */
-    private long idGenerator() {
-        return idCount++;
-    }
-
+    private long idCount = 1;
     /**
      * Функция производящая валидацию полей объекта
      */
@@ -41,23 +32,30 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return someUser;
     };
-
     /**
      * Функция проверки поля имени и если оно пусто то установки в него значения из поля логин
      */
     private Validation<User, User> changeNameIfBlank = (someUser) -> {
-        if (someUser.getName().isBlank()){
+        if (someUser.getName().isBlank()) {
             return someUser.toBuilder().name(someUser.getLogin()).build();
         }
         return someUser;
-    } ;
+    };
+
+    /**
+     * Генератор идентификаторов
+     *
+     * @return
+     */
+    private long idGenerator() {
+        return idCount++;
+    }
 
     /**
      * Создаёт и проводит валидацию экземпляра класса User, а также добавляет его в группу
      */
     @Override
     public Optional<User> addUser(User user) {
-
         //Произвести валидацию пользователя и добавить его в группу,
         // если валидация не пройдена залогировать и выбросить исключение
         try {
@@ -105,6 +103,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     /**
      * Получает группу пользователей
+     *
      * @return
      */
     @Override
