@@ -2,9 +2,12 @@ package ru.yandex.practicum.filmorate.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.controllers.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 
+import javax.validation.constraints.NegativeOrZero;
+import javax.validation.constraints.Positive;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,17 +85,17 @@ public class FilmService {
      * @param userId
      * @return
      */
-    public static Optional<Film> removeLike(Film film, long userId) {
-        Set<Long> likes = film.getLikes();
-        if (likes == null) {
-            return Optional.empty();
-        }
-        if (likes.remove(userId)) {
-            film = film.toBuilder().likes(likes).build();
-            return Optional.of(film);
-        }
-        return Optional.empty();
-    }
+//    public static Optional<Film> removeLike(Film film, long userId) {
+//        Set<Long> likes = film.getLikes();
+//        if (likes == null) {
+//            return Optional.empty();
+//        }
+//        if (likes.remove(userId)) {
+//            film = film.toBuilder().likes(likes).build();
+//            return Optional.of(film);
+//        }
+//        return Optional.empty();
+//    }
 
     /**
      * Получить count фильмов в порядке уменьшения количества лайков
@@ -100,9 +103,11 @@ public class FilmService {
      * @return
      */
     public Optional<List<Film>> getBestFilms(int count) {
-        //Может выдавать NoSuchElementException
+        //Может выдавать NoSuchElementException, ValidationException
         if (count <= 0) {
-            count = 10;
+            //Стараться получить ноль или меньше фильмов не имеет смысла
+            //В целях единообразия выбрасывается исключение
+            throw new ValidationException("Значение count не может быть меньше 1.");
         }
         //Сравнение фильмов по количеству лайков в возрастающем порядке
         Comparator<Film> compareLikes = Comparator.comparing(film -> film.getLikes().size());

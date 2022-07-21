@@ -30,11 +30,12 @@ public class User {
     @PastOrPresent
     private LocalDate birthday;
 
-    //Содаржит список пользователей - друзей
-    Set<Long> friends;
+    //Содаржит список идентификаторов пользователей - друзей
+    private Set<Long> friends;
 
     /**
      * Принмает функцию выполняющую валидацию
+     *
      * @param validationFunction
      * @return
      */

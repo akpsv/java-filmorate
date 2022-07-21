@@ -5,7 +5,6 @@ import lombok.Value;
 import ru.yandex.practicum.filmorate.controllers.Validation;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
@@ -31,12 +30,12 @@ public class Film {
     private int duration;
 
     //Содержит идентификаторы пользователей поставивших лайк фильму
-    Set<Long> likes;
+    private Set<Long> likes;
 
     /**
      * Принмает функцию выполняющую валидацию
      */
-    public Film validate(Validation<Film, Film> validationFunction){
+    public Film validate(Validation<Film, Film> validationFunction) {
         return validationFunction.validate(this);
     }
 }
