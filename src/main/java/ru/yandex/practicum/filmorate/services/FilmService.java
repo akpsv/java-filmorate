@@ -79,25 +79,6 @@ public class FilmService {
     }
 
     /**
-     * Удалить лайк из группы
-     *
-     * @param film
-     * @param userId
-     * @return
-     */
-//    public static Optional<Film> removeLike(Film film, long userId) {
-//        Set<Long> likes = film.getLikes();
-//        if (likes == null) {
-//            return Optional.empty();
-//        }
-//        if (likes.remove(userId)) {
-//            film = film.toBuilder().likes(likes).build();
-//            return Optional.of(film);
-//        }
-//        return Optional.empty();
-//    }
-
-    /**
      * Получить count фильмов в порядке уменьшения количества лайков
      *
      * @return
