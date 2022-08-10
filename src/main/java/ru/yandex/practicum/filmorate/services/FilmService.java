@@ -70,6 +70,7 @@ public class FilmService {
         if (likes == null) {
             likes = new HashSet<>();
         }
+        //TODO: Добавить проверку пользователя на существование
         if (likes.add(userId)) {
             film = film.toBuilder().likes(likes).build();
             filmStorage.updateFilm(film);
