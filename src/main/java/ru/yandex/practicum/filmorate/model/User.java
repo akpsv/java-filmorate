@@ -9,6 +9,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 @Value
@@ -41,5 +43,19 @@ public class User {
      */
     public User validate(Validation<User, User> validationFunction) {
         return validationFunction.validate(this);
+    }
+
+    /**
+     * Сопосталвение данных для использования в UserDbStorage
+     * @return
+     */
+    public Map<String, Object> toMap(){
+        Map<String, Object> values = new HashMap<>();
+        values.put("name", name);
+        values.put("login", login);
+        values.put("email", email);
+        values.put("birthday", birthday);
+
+        return values;
     }
 }
