@@ -8,6 +8,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 @Value()
@@ -29,6 +31,11 @@ public class Film {
     @PositiveOrZero
     private int duration;
 
+    //TODO: подумать как сделать
+    private Rating rating;
+
+    private Genre genre;
+
     //Содержит идентификаторы пользователей поставивших лайк фильму
     private Set<Long> likes;
 
@@ -37,6 +44,20 @@ public class Film {
      */
     public Film validate(Validation<Film, Film> validationFunction) {
         return validationFunction.validate(this);
+    }
+
+    /**
+     * Сопосталвение данных для использования в FilmDbStorage
+     * @return
+     */
+    public Map<String, Object> toMap(){
+        Map<String, Object> values = new HashMap<>();
+        values.put("film_name", name);
+        values.put("description", description);
+        values.put("release_date", releaseDate);
+        values.put("duration_min", duration);
+
+        return values;
     }
 }
 

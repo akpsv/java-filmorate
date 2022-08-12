@@ -60,9 +60,9 @@ public class InMemoryUserStorage implements UserStorage {
         // если валидация не пройдена залогировать и выбросить исключение
         try {
             //Проверить поля на соответствие требованиям
-            user.validate(validationFields);
+//            user.validate(validationFields);
             //Проверить поле имени. Если оно не заполнено, то установить значение из поля логин
-            user = user.validate(changeNameIfBlank);
+//            user = user.validate(changeNameIfBlank);
             //Присвоить пользователю идентификатор
             user = user.toBuilder().id(idGenerator()).friends(new HashSet<>()).build();
 
@@ -109,5 +109,10 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public Optional<List<User>> getUsers() {
         return Optional.of(new ArrayList<>(users.values()));
+    }
+
+    @Override
+    public Optional<User> deleteUser() {
+        return Optional.empty();
     }
 }

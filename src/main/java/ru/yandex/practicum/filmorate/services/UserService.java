@@ -1,14 +1,19 @@
 package ru.yandex.practicum.filmorate.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.controllers.Validation;
+import ru.yandex.practicum.filmorate.controllers.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService {
     private UserStorage userStorage;
@@ -70,15 +75,61 @@ public class UserService {
         return new ArrayList<>(user.getFriends());
     }
 
+    /////////////////////////////////////////////////////////////
+
+    /**
+     * Функция производящая валидацию полей объекта
+     */
+    private Validation<User, User> validationFields = (someUser) -> {
+        if (someUser.getEmail().isBlank() || !someUser.getEmail().contains("@")) {
+            throw new ValidationException("Ошибка. Поле электронной почты пусто или не содержит знак @.");
+        }
+        if (someUser.getLogin().isBlank() || someUser.getLogin().contains(" ")) {
+            throw new ValidationException("Ошибка. Поле логин пусто или содержит пробелы.");
+        }
+        if (someUser.getBirthday().isAfter(LocalDate.now())) {
+            throw new ValidationException("Ошибка. Дата дня рождения не может быть в будущем.");
+        }
+        return someUser;
+    };
+    /**
+     * Функция проверки поля имени и если оно пусто то установки в него значения из поля логин
+     */
+    private Validation<User, User> changeNameIfBlank = (someUser) -> {
+        if (someUser.getName().isBlank()) {
+            return someUser.toBuilder().name(someUser.getLogin()).build();
+        }
+        return someUser;
+    };
+
     /**
      * Добавить пользователя в грппу
      *
      * @param user
      * @return
      */
-    public User addUser(User user) {
-        return userStorage.addUser(user).get();
+    public Optional<User> addUser(User user) {
+        //Произвести валидацию пользователя и добавить его в группу,
+        // если валидация не пройдена залогировать и выбросить исключение
+        try {
+            //Проверить поля на соответствие требованиям
+            user.validate(validationFields);
+            //Проверить поле имени. Если оно не заполнено, то установить значение из поля логин
+            user = user.validate(changeNameIfBlank);
+            //Присвоить пользователю идентификатор
+//            user = user.toBuilder().id(idGenerator()).friends(new HashSet<>()).build();
+
+//            users.put(user.getId(), user);
+            Optional<User> addedUser = userStorage.addUser(user);
+            log.info("В группу пользователей добавлен пользователь: {}", user.getLogin());
+            return addedUser;
+        } catch (ValidationException exception) {
+            log.warn(exception.getMessage(), exception);
+            throw exception;
+        }
     }
+
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * Обновить существующего пользователя в группе
@@ -122,19 +173,27 @@ public class UserService {
         //Если такого друга не существует вернётся исключение NoSuchElementException
         User friendUser = getUserById(friendId).get();
         //Получить группу друзей друга
-        Set<Long> friendsOfFriendUser = friendUser.getFriends();
-        if (friendsOfFriendUser == null) {
-            friendsOfFriendUser = new HashSet<>();
-        }
+//        Set<Long> friendsOfFriendUser = friendUser.getFriends();
+//        if (friendsOfFriendUser == null) {
+//            friendsOfFriendUser = new HashSet<>();
+//        }
 
         //Добавить идентификатор нового друга в группу, добавить идентификатор основного пользователя в группу друзей друга,
         // и вернуть true если их идентификаторов ещё нет в группах.
         // Иначе вернуть false.
-        if (friendsOfMainUser.add(friendId) && friendsOfFriendUser.add(mainUser.getId())) {
+//        if (friendsOfMainUser.add(friendId) && friendsOfFriendUser.add(mainUser.getId())) {
+//            mainUser = mainUser.toBuilder().friends(friendsOfMainUser).build();
+//            userStorage.updateUser(mainUser);
+//            friendUser = friendUser.toBuilder().friends(friendsOfFriendUser).build();
+//            userStorage.updateUser(friendUser);
+//            return true;
+//        }
+
+        if (friendsOfMainUser.add(friendId) ) {
             mainUser = mainUser.toBuilder().friends(friendsOfMainUser).build();
             userStorage.updateUser(mainUser);
-            friendUser = friendUser.toBuilder().friends(friendsOfFriendUser).build();
-            userStorage.updateUser(friendUser);
+//            friendUser = friendUser.toBuilder().friends(friendsOfFriendUser).build();
+//            userStorage.updateUser(friendUser);
             return true;
         }
         return false;
@@ -171,7 +230,12 @@ public class UserService {
         //Если друг удалился, то вернуть true, если его не было в списке, то вернуть false
         if (friends.remove(friendId)) {
             user = user.toBuilder().friends(friends).build();
-            return true;
+            //Если друг удалён то истина, иначе ложь
+            if (userStorage.updateUser(user).isPresent()) {
+                return true;
+            } else {
+                return false;
+            }
         }
         return false;
     }

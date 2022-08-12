@@ -75,22 +75,60 @@ public class UserDbStorage implements UserStorage {
         if (user.getFriends()==null || user.getFriends().isEmpty()){
             return false;
         }
-        //Получить друзей пользователя
+        //Получить идентификаторы друзей пользователя находящиеся в БД
         String sqlSelectFriends = "SELECT friend_id FROM friends WHERE user_id = ?";
-        List<Long> friendsIdFromDB = jdbcTemplate.query(sqlSelectFriends, (rs, rowNum) -> rs.getLong("friend_id"), user.getId());
+        List<Long> friendsIdFromDB = jdbcTemplate.query(sqlSelectFriends,
+                (rs, rowNum) -> rs.getLong("friend_id"),
+                user.getId());
+        //Если друзеё в объекте Пользователь больше чем в БД , то добавить друга иначе удалить
+        if (user.getFriends().size()> friendsIdFromDB.size()) {
+            return addFriendToUser(user, friendsIdFromDB);
+        } else if (user.getFriends().size()< friendsIdFromDB.size()) {
+           return deleteFriendFromUser(user, friendsIdFromDB);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Добавить друга пользователю
+     * @param user
+     * @param friendsIdFromDB
+     * @return
+     */
+    private boolean addFriendToUser(User user, List<Long> friendsIdFromDB){
         //Получить множество идентификаторов пользователей с добавленным другом
         //TODO: что-то сделать с возможным null
         Set<Long> setWithNewFriend = user.getFriends();
         //Получить идентификатор добавленного друга
         setWithNewFriend.removeAll(friendsIdFromDB);
-        if (setWithNewFriend.isEmpty()){
+        if (setWithNewFriend.isEmpty()) {
             return false;
         }
         long newFriendId = setWithNewFriend.stream().findFirst().get();
-
         //Вставить идентификатор нового друга
         String sqlInsertFriend = "INSERT INTO friends(user_id, friend_id) VALUES (?, ?)";
-        jdbcTemplate.update(sqlInsertFriend,user.getId(), newFriendId);
+        jdbcTemplate.update(sqlInsertFriend, user.getId(), newFriendId);
+        return true;
+    }
+
+    /**
+     * Удалить друга у пользователя
+     * @param user
+     * @param friendsIdFromDB
+     * @return
+     */
+    private boolean deleteFriendFromUser(User user, List<Long> friendsIdFromDB){
+        //Получить множество идентификаторов пользователей с добавленным другом
+        //TODO: что-то сделать с возможным null
+        Set<Long> setWithoutFriend = user.getFriends();
+        //Получить идентификатор добавленного друга
+        friendsIdFromDB.removeAll(setWithoutFriend);
+        long deletingFriendId = friendsIdFromDB.get(0);
+
+        //Вставить идентификатор нового друга
+        String sqlDeleteFriend = "DELETE FROM friends WHERE user_id = ? AND friend_id= ? ";
+        jdbcTemplate.update(sqlDeleteFriend, user.getId(), deletingFriendId);
         return true;
     }
 
@@ -106,6 +144,9 @@ public class UserDbStorage implements UserStorage {
 
         return Optional.of(userList);
     }
+
+
+
 
 
     /**
