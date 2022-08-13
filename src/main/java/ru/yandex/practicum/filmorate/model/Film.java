@@ -9,6 +9,7 @@ import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,14 +31,17 @@ public class Film {
     @NotBlank
     @PositiveOrZero
     private int duration;
+    private int rate;
 
     //TODO: подумать как сделать
-    private Rating rating;
+    private Map<String,Integer> mpa;
 
-    private Genre genre;
+    private List<Map<String, Integer>> genres;
 
     //Содержит идентификаторы пользователей поставивших лайк фильму
     private Set<Long> likes;
+
+
 
     /**
      * Принмает функцию выполняющую валидацию
@@ -56,9 +60,12 @@ public class Film {
         values.put("description", description);
         values.put("release_date", releaseDate);
         values.put("duration_min", duration);
+        values.put("rate", rate);
+        values.put("mpa", mpa.get("id"));
 
         return values;
     }
+
 }
 
 

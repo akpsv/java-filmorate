@@ -110,9 +110,4 @@ public class InMemoryUserStorage implements UserStorage {
     public Optional<List<User>> getUsers() {
         return Optional.of(new ArrayList<>(users.values()));
     }
-
-    @Override
-    public Optional<User> deleteUser() {
-        return Optional.empty();
-    }
 }

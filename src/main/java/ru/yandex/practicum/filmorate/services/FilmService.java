@@ -110,9 +110,12 @@ public class FilmService {
      */
     public Optional<Film> getFilmById(long id) {
         //Может выдавать NoSuchElementException
-        return filmStorage.getFilms().get().stream()
+        Optional<Film> resultFilm = filmStorage.getFilms().get().stream()
                 .filter((film) -> film.getId() == id)
                 .findAny();
+
+        return resultFilm;
+
     }
 
     /**
