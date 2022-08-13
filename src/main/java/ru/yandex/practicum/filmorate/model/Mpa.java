@@ -5,14 +5,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Genre {
+public class Mpa {
     private int id;
     private String name;
 
-    public Genre() {
+    public Mpa() {
     }
 
-    public Genre(int id, String name) {
+    public Mpa(int id, String name) {
         this.id = id;
         this.name = name;
     }

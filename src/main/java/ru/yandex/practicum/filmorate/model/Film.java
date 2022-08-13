@@ -34,10 +34,10 @@ public class Film {
     private int rate;
 
     //TODO: подумать как сделать
-    private Map<String,Integer> mpa;
-
-    private List<Map<String, Integer>> genres;
-
+//    private Map<String,Integer> mpa;
+    private Mpa mpa;
+//    private List<Map<String, Integer>> genres;
+    private List<Genre> genres;
     //Содержит идентификаторы пользователей поставивших лайк фильму
     private Set<Long> likes;
 
@@ -61,7 +61,7 @@ public class Film {
         values.put("release_date", releaseDate);
         values.put("duration_min", duration);
         values.put("rate", rate);
-        values.put("mpa", mpa.get("id"));
+        values.put("mpa", mpa.getId());
 
         return values;
     }

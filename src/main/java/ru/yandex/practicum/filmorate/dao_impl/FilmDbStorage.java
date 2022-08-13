@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 
@@ -31,9 +32,9 @@ public class FilmDbStorage implements FilmStorage {
         if (film.getGenres()!=null) {
             String sqlInsertGenres = "INSERT INTO films_genres(film_id, genre_id) VALUES(?, ?)";
             film.getGenres().stream()
-                    .forEach(entry -> jdbcTemplate.update(sqlInsertGenres,
+                    .forEach(genre -> jdbcTemplate.update(sqlInsertGenres,
                             filmId,
-                            entry.get("id")));
+                            genre.getId()));
         }
         //Сохранить лайки
         //Получить и вернуть сохранённый фильм из базы
@@ -55,7 +56,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getRate(),
-                film.getMpa().get("id"),
+                film.getMpa().getId(),
                 film.getId()
         );
 
@@ -174,29 +175,37 @@ public class FilmDbStorage implements FilmStorage {
         return likes.stream().collect(Collectors.toSet());
     }
 
-    private Map<String, Integer> getMpaForFilm(ResultSet resultSet) throws SQLException {
-        Map<String, Integer> mpa = new HashMap<>();
+    private Mpa getMpaForFilm(ResultSet resultSet) throws SQLException {
+        Mpa mpa = new Mpa();
         int mpaIdFromFilm = resultSet.getInt("mpa");
         //Получить название mpa
         String sqlSelectMpaName = "SELECT mpa_name FROM mpas WHERE mpa_id = ?";
         String mpa_name = jdbcTemplate.query(sqlSelectMpaName, (rs, rowNum) -> rs.getString("mpa_name"), mpaIdFromFilm).get(0);
-        mpa.put("id", mpaIdFromFilm);
-        mpa.put("name", mpa_name);
+        mpa.setId(mpaIdFromFilm);
+        mpa.setName(mpa_name);
         return mpa;
     }
 
     //TODO: доделать
-    private List<Map<String, Integer>> getGenresForFilm(long filmId) throws SQLException {
-        Map<String, Integer> mapGenres = new HashMap<>();
+    private List<Genre> getGenresForFilm(long filmId) throws SQLException {
+        Genre genre = new Genre();
+        //Получить идентификаторы жанров фильма
         String sqlSelectGenres = "SELECT g.genre_id FROM films_genres AS fg  INNER JOIN genres AS g  ON fg.genre_id = g.genre_id  WHERE fg.film_id = ?";
         List<Integer> genresId = jdbcTemplate.query(sqlSelectGenres, (rs, rowNum) -> rs.getInt("genre_id"), filmId);
-        List<Map<String, Integer>> genres = new ArrayList<>();
+
+        List<Genre> genres = new ArrayList<>();
         if (genresId.size()==0){
             return genres;
         }
+
         genresId.stream()
-                .forEach(genreId -> mapGenres.put("id", genreId) );
-        genres.add(mapGenres);
+                .forEach(genreId ->{
+                    genre.setId(genreId);
+                    String sqlSelectNameOfGenre = "SELECT genre_name FROM genres WHERE genre_id = ?";
+                    String genreName = jdbcTemplate.query(sqlSelectNameOfGenre, (rs, rowNum) -> rs.getString("genre_name"), genreId).get(0);
+                    genre.setName(genreName);
+                });
+        genres.add(genre);
 //Где то в методе надо поставить проверку , чтобы не добавлять в итоговый список пустое отображение иначе список состоит из одного элемента но пустого
         return genres;
     }
