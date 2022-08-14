@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,13 +21,12 @@ public class MpaController {
     }
 
     @GetMapping
-    public List<Mpa> getMpas(){
+    public List<Mpa> getMpas() {
         return mpaService.getMpas().get();
     }
 
     @GetMapping("/{id}")
-    public Mpa getMpaById(@PathVariable int id){
+    public Mpa getMpaById(@PathVariable int id) {
         return mpaService.getMpaById(id).get();
     }
-
 }

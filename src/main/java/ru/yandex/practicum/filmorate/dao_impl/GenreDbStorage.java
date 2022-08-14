@@ -35,5 +35,4 @@ public class GenreDbStorage implements GenreStorage {
         //Сформировать объект пользователя
         return new Genre(genreId, genre_name);
     }
-
 }

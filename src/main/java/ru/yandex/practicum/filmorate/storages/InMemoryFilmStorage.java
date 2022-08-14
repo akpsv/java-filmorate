@@ -14,6 +14,7 @@ import java.util.*;
 public class InMemoryFilmStorage implements FilmStorage {
     //Группа содержащая все фильмы
     private Map<Long, Film> films = new HashMap<>();
+
     /**
      * Функция выполняющая валидацию
      */

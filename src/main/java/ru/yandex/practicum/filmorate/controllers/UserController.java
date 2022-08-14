@@ -6,15 +6,13 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.services.UserService;
 
-import java.util.*;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-
     private UserService userService;
-
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
@@ -22,6 +20,7 @@ public class UserController {
 
     /**
      * Добавить пользователя в группу
+     *
      * @param user
      * @return
      */
@@ -32,6 +31,7 @@ public class UserController {
 
     /**
      * Обновить пользователя в группе
+     *
      * @param user
      * @return
      */
@@ -42,6 +42,7 @@ public class UserController {
 
     /**
      * Получить группу пользователей
+     *
      * @return
      */
     @GetMapping

@@ -1,18 +1,13 @@
 package ru.yandex.practicum.filmorate.dao_impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,11 +23,12 @@ public class UserDbStorage implements UserStorage {
 
     /**
      * Добавить пользователя в БД
+     *
      * @param user - объект пользователя
      * @return
      */
     @Override
-    public Optional<User> addUser(User user){
+    public Optional<User> addUser(User user) {
         SimpleJdbcInsert insertUserData = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
                 .usingGeneratedKeyColumns("user_id");
@@ -43,6 +39,7 @@ public class UserDbStorage implements UserStorage {
 
     /**
      * Обновить пользователя
+     *
      * @param user
      * @return
      */
@@ -59,20 +56,21 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday(),
                 user.getId());
 
-        if (update==1){
+        if (update == 1) {
             return Optional.of(user);
-        }else {
+        } else {
             return Optional.empty();
         }
     }
 
     /**
      * Обновить список идентификаторов друзей идентификатором нового друга
+     *
      * @param user - пользователь к которому добавляем друга
      * @return true - если друг добалвен, иначе - false
      */
-    private boolean updateFriends(User user){
-        if (user.getFriends()==null || user.getFriends().isEmpty()){
+    private boolean updateFriends(User user) {
+        if (user.getFriends() == null || user.getFriends().isEmpty()) {
             return false;
         }
         //Получить идентификаторы друзей пользователя находящиеся в БД
@@ -81,10 +79,10 @@ public class UserDbStorage implements UserStorage {
                 (rs, rowNum) -> rs.getLong("friend_id"),
                 user.getId());
         //Если друзеё в объекте Пользователь больше чем в БД , то добавить друга иначе удалить
-        if (user.getFriends().size()> friendsIdFromDB.size()) {
+        if (user.getFriends().size() > friendsIdFromDB.size()) {
             return addFriendToUser(user, friendsIdFromDB);
-        } else if (user.getFriends().size()< friendsIdFromDB.size()) {
-           return deleteFriendFromUser(user, friendsIdFromDB);
+        } else if (user.getFriends().size() < friendsIdFromDB.size()) {
+            return deleteFriendFromUser(user, friendsIdFromDB);
         } else {
             return false;
         }
@@ -92,11 +90,12 @@ public class UserDbStorage implements UserStorage {
 
     /**
      * Добавить друга пользователю
+     *
      * @param user
      * @param friendsIdFromDB
      * @return
      */
-    private boolean addFriendToUser(User user, List<Long> friendsIdFromDB){
+    private boolean addFriendToUser(User user, List<Long> friendsIdFromDB) {
         //Получить множество идентификаторов пользователей с добавленным другом
         //TODO: что-то сделать с возможным null
         Set<Long> setWithNewFriend = user.getFriends();
@@ -114,13 +113,13 @@ public class UserDbStorage implements UserStorage {
 
     /**
      * Удалить друга у пользователя
+     *
      * @param user
      * @param friendsIdFromDB
      * @return
      */
-    private boolean deleteFriendFromUser(User user, List<Long> friendsIdFromDB){
+    private boolean deleteFriendFromUser(User user, List<Long> friendsIdFromDB) {
         //Получить множество идентификаторов пользователей с добавленным другом
-        //TODO: что-то сделать с возможным null
         Set<Long> setWithoutFriend = user.getFriends();
         //Получить идентификатор добавленного друга
         friendsIdFromDB.removeAll(setWithoutFriend);
@@ -134,6 +133,7 @@ public class UserDbStorage implements UserStorage {
 
     /**
      * Получить из БД и преобразовать в объекты всех пользователей
+     *
      * @return
      */
     @Override
@@ -145,18 +145,15 @@ public class UserDbStorage implements UserStorage {
         return Optional.of(userList);
     }
 
-
-
-
-
     /**
      * Создать объект пользователя из строки БД
+     *
      * @param resultSet
      * @param rowNum
      * @return
      * @throws SQLException
      */
-    private User mapRowToUser(ResultSet resultSet, int rowNum)throws SQLException{
+    private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         //Получить друзей пользователя
         Set<Long> friends_id = getFriendsForUser(resultSet.getLong("user_id"));
         //Сформировать объект пользователя
@@ -172,6 +169,7 @@ public class UserDbStorage implements UserStorage {
 
     /**
      * Получить друзей пользователя
+     *
      * @param id
      * @return
      */

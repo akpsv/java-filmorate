@@ -27,7 +27,7 @@ public class MpaDbStorage implements MpaStorage {
         return Optional.of(mpas);
     }
 
-    private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException{
+    private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {
         int mpa_id = resultSet.getInt("mpa_id");
         String mpa_name = resultSet.getString("mpa_name");
 

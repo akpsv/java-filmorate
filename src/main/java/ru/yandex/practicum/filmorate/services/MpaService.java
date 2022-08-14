@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.storages.MpaStorage;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @Service
 public class MpaService {
@@ -18,16 +17,16 @@ public class MpaService {
         this.mpaStorage = mpaStorage;
     }
 
-    public Optional<List<Mpa>> getMpas(){
+    public Optional<List<Mpa>> getMpas() {
         return mpaStorage.getMpas();
     }
 
     public Optional<Mpa> getMpaById(int id) {
-        if (id<1){
+        if (id < 1) {
             return Optional.empty();
         }
         return mpaStorage.getMpas().get().stream()
-                .filter(mpa -> mpa.getId()==id)
+                .filter(mpa -> mpa.getId() == id)
                 .findAny();
     }
 }

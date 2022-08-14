@@ -59,13 +59,8 @@ public class InMemoryUserStorage implements UserStorage {
         //Произвести валидацию пользователя и добавить его в группу,
         // если валидация не пройдена залогировать и выбросить исключение
         try {
-            //Проверить поля на соответствие требованиям
-//            user.validate(validationFields);
-            //Проверить поле имени. Если оно не заполнено, то установить значение из поля логин
-//            user = user.validate(changeNameIfBlank);
             //Присвоить пользователю идентификатор
             user = user.toBuilder().id(idGenerator()).friends(new HashSet<>()).build();
-
             users.put(user.getId(), user);
             log.info("В группу пользователей добавлен пользователь: {}", user.getLogin());
             return Optional.of(user);
@@ -86,7 +81,6 @@ public class InMemoryUserStorage implements UserStorage {
         //Есть ли обновляемые пользователь в группе? Есил есть обновить, если нет залогировать и вернуть null.
         if (!users.containsKey(user.getId())) {
             log.info("Пользователя {} нет в группе.", user);
-//            throw new ValidationException("Ошибка обновления пользователя. Такого пользователя нет в группе.");
             return Optional.empty();
         }
         //Произвести валидацию пользователя и обновить его данные, если валидация не пройдена залогировать

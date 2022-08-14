@@ -50,7 +50,6 @@ public class FilmController {
         return filmService.updateFilm(film).get();
     }
 
-
     /**
      * Получить фильм по идентификатору
      *

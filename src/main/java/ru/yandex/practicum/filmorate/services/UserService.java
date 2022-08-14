@@ -17,6 +17,30 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private UserStorage userStorage;
+    /**
+     * Функция производящая валидацию полей объекта
+     */
+    private Validation<User, User> validationFields = (someUser) -> {
+        if (someUser.getEmail().isBlank() || !someUser.getEmail().contains("@")) {
+            throw new ValidationException("Ошибка. Поле электронной почты пусто или не содержит знак @.");
+        }
+        if (someUser.getLogin().isBlank() || someUser.getLogin().contains(" ")) {
+            throw new ValidationException("Ошибка. Поле логин пусто или содержит пробелы.");
+        }
+        if (someUser.getBirthday().isAfter(LocalDate.now())) {
+            throw new ValidationException("Ошибка. Дата дня рождения не может быть в будущем.");
+        }
+        return someUser;
+    };
+    /**
+     * Функция проверки поля имени и если оно пусто то установки в него значения из поля логин
+     */
+    private Validation<User, User> changeNameIfBlank = (someUser) -> {
+        if (someUser.getName().isBlank()) {
+            return someUser.toBuilder().name(someUser.getLogin()).build();
+        }
+        return someUser;
+    };
 
     @Autowired
     public UserService(@Qualifier("dbStorage") UserStorage userStorage) {
@@ -46,6 +70,8 @@ public class UserService {
         return Optional.empty();
     }
 
+    /////////////////////////////////////////////////////////////
+
     /**
      * Удалить пользователя из списка друзей
      *
@@ -74,33 +100,6 @@ public class UserService {
     public static List<Long> getFriends(User user) {
         return new ArrayList<>(user.getFriends());
     }
-
-    /////////////////////////////////////////////////////////////
-
-    /**
-     * Функция производящая валидацию полей объекта
-     */
-    private Validation<User, User> validationFields = (someUser) -> {
-        if (someUser.getEmail().isBlank() || !someUser.getEmail().contains("@")) {
-            throw new ValidationException("Ошибка. Поле электронной почты пусто или не содержит знак @.");
-        }
-        if (someUser.getLogin().isBlank() || someUser.getLogin().contains(" ")) {
-            throw new ValidationException("Ошибка. Поле логин пусто или содержит пробелы.");
-        }
-        if (someUser.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Ошибка. Дата дня рождения не может быть в будущем.");
-        }
-        return someUser;
-    };
-    /**
-     * Функция проверки поля имени и если оно пусто то установки в него значения из поля логин
-     */
-    private Validation<User, User> changeNameIfBlank = (someUser) -> {
-        if (someUser.getName().isBlank()) {
-            return someUser.toBuilder().name(someUser.getLogin()).build();
-        }
-        return someUser;
-    };
 
     /**
      * Добавить пользователя в грппу
@@ -189,7 +188,7 @@ public class UserService {
 //            return true;
 //        }
 
-        if (friendsOfMainUser.add(friendId) ) {
+        if (friendsOfMainUser.add(friendId)) {
             mainUser = mainUser.toBuilder().friends(friendsOfMainUser).build();
             userStorage.updateUser(mainUser);
 //            friendUser = friendUser.toBuilder().friends(friendsOfFriendUser).build();

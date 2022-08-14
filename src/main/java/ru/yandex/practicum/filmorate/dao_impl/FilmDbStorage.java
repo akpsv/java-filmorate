@@ -8,13 +8,14 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
-import ru.yandex.practicum.filmorate.storages.GenreStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Repository("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
@@ -38,7 +39,6 @@ public class FilmDbStorage implements FilmStorage {
                             filmId,
                             genre.getId()));
         }
-        //Сохранить лайки
         //Получить и вернуть сохранённый фильм из базы
         String sqlSelectSavedFilm = "SELECT * FROM films WHERE film_id = ?";
         Film sevedFilmFromDb = jdbcTemplate.queryForObject(sqlSelectSavedFilm, this::mapRowToFilm, filmId);
@@ -50,6 +50,7 @@ public class FilmDbStorage implements FilmStorage {
     public Optional<Film> updateFilm(Film film) {
         //Обновить лайки
         updateLikes(film);
+        //Обновить жанры
         updateGenres(film);
 
         String sqlUpdateUser = "UPDATE films SET film_name=?, description=?, release_date=?, duration_min=?, rate = ?, mpa = ?  WHERE film_id = ?";
@@ -69,9 +70,9 @@ public class FilmDbStorage implements FilmStorage {
 
         //Получить обновлённые жанры из БД и добавить в фильм
         String sqlSelectGenresForFilm = "SELECT g.genre_id, g.genre_name FROM films_genres AS fg INNER JOIN genres AS g ON fg.genre_id = g.genre_id WHERE fg.film_id = ?";
-        List<Genre> genres = jdbcTemplate.query(sqlSelectGenresForFilm, (rs, rowNum) -> {
-            return new Genre(rs.getInt("genre_id"), rs.getString("genre_name"));
-        }, film.getId());
+        List<Genre> genres = jdbcTemplate.query(sqlSelectGenresForFilm,
+                (rs, rowNum) -> new Genre(rs.getInt("genre_id"), rs.getString("genre_name")),
+                film.getId());
 
         Film fullUpdatedFilm = updatedFilm.toBuilder().genres(genres).build();
 
@@ -153,7 +154,7 @@ public class FilmDbStorage implements FilmStorage {
 
 
     /**
-     * Обновить список жарнов фильма
+     * Обновить список жанров фильма
      *
      * @param film - фильм, список жанров которого обновляется
      * @return true - если жанры обновлены, иначе - false
@@ -167,6 +168,7 @@ public class FilmDbStorage implements FilmStorage {
         List<Integer> genresFromDB = jdbcTemplate.query(sqlSelectGenres,
                 (rs, rowNum) -> rs.getInt("genre_id"),
                 film.getId());
+
         //Если лайков в объекте Фильм больше чем в БД , то добавить лайк иначе удалить
         List<Genre> distinctGenres = film.getGenres().stream().distinct().collect(Collectors.toList());
         if (distinctGenres.size() > genresFromDB.size()) {
@@ -176,21 +178,6 @@ public class FilmDbStorage implements FilmStorage {
         } else {
             return false;
         }
-
-        //Просто замена все жанров в БД
-        //Получить объекты жанров с добавленным жанром из фильма
-
-//        List<Integer> setWithNewGenre = film.getGenres().stream()
-//                .map(genre -> genre.getId())
-//                .collect(Collectors.toList());
-//        //Добавить отсутсвующие у фильм жанры
-//        setWithNewGenre.stream()
-//                .forEach(genreId -> {
-//                    //Добавить новые жанры фильму в таблицу
-//                    String sqlInsertGenre = "INSERT INTO films_genres(film_id, genre_id) VALUES (?, ?)";
-//                    jdbcTemplate.update(sqlInsertGenre, film.getId(), genreId);
-//                });
-
     }
 
     /**
@@ -202,7 +189,6 @@ public class FilmDbStorage implements FilmStorage {
      */
     private boolean addGenreToFilm(Film film, List<Integer> genresFromDB) {
         //Получить объекты жанров с добавленным жанром из фильма
-        //TODO: что-то сделать с возможным null
         List<Integer> setWithNewGenre = film.getGenres().stream()
                 .map(genre -> genre.getId())
                 .collect(Collectors.toList());
@@ -219,10 +205,6 @@ public class FilmDbStorage implements FilmStorage {
                     String sqlInsertGenre = "INSERT INTO films_genres(film_id, genre_id) VALUES (?, ?)";
                     jdbcTemplate.update(sqlInsertGenre, film.getId(), genreId);
                 });
-//        int newGenreId = setWithNewGenre.stream().findFirst().get();
-        //Вставить идентификатор нового друга
-//        String sqlInsertGenre = "INSERT INTO films_genres(film_id, genre_id) VALUES (?, ?)";
-//        jdbcTemplate.update(sqlInsertGenre, film.getId(), newGenreId);
         return true;
     }
 
@@ -235,20 +217,26 @@ public class FilmDbStorage implements FilmStorage {
      */
     private boolean deleteGenreFromFilm(Film film, List<Integer> genresFromDB) {
         //Получить объекты жанров из которых удалён один жанр из фильма
-        //TODO: что-то сделать с возможным null
         List<Integer> setWithoutGenre = film.getGenres().stream()
                 .map(genre -> genre.getId())
                 .collect(Collectors.toList());
-        //Получить идентификатор удалённого лайка
+
+        //Получить идентификаторы жанров
+        //TODO: доделать удаление нескольких жанров?
         genresFromDB.removeAll(setWithoutGenre);
         long deletingGenreId = genresFromDB.get(0);
 
-        //Вставить идентификатор нового друга
+        //Удалить жанр
         String sqlDeleteGenre = "DELETE FROM films_genres WHERE film_id = ? AND genre_id= ? ";
         jdbcTemplate.update(sqlDeleteGenre, film.getId(), deletingGenreId);
         return true;
     }
 
+    /**
+     * Получить все фильмы
+     *
+     * @return
+     */
     @Override
     public Optional<List<Film>> getFilms() {
         //Получить всех пользователей
@@ -279,29 +267,50 @@ public class FilmDbStorage implements FilmStorage {
                 .duration(resultSet.getInt("duration_min"))
                 .likes(getLikesForFilm(filmId))
                 .genres(getGenresForFilm(filmId))
-//                .mpa(getMpaForFilm(mpaIdFromFilm))
                 .mpa(getMpaForFilm(resultSet))
                 .build();
     }
 
+    /**
+     * Получить лайки для фильма из БД
+     *
+     * @param filmId
+     * @return
+     */
     private Set<Long> getLikesForFilm(long filmId) {
         String sqlSelectLikes = "SELECT user_id FROM likes WHERE film_id = ?";
         List<Long> likes = jdbcTemplate.query(sqlSelectLikes, (rs, rowNum) -> rs.getLong("user_id"), filmId);
         return likes.stream().collect(Collectors.toSet());
     }
 
+    /**
+     * Получить mpa для фильма из БД
+     *
+     * @param resultSet
+     * @return
+     * @throws SQLException
+     */
     private Mpa getMpaForFilm(ResultSet resultSet) throws SQLException {
-        Mpa mpa = new Mpa();
+        //Получить идентификатор mpa из поля фильма
         int mpaIdFromFilm = resultSet.getInt("mpa");
         //Получить название mpa
         String sqlSelectMpaName = "SELECT mpa_name FROM mpas WHERE mpa_id = ?";
         String mpa_name = jdbcTemplate.query(sqlSelectMpaName, (rs, rowNum) -> rs.getString("mpa_name"), mpaIdFromFilm).get(0);
+
+        //Создать возвращаемый объект mpa
+        Mpa mpa = new Mpa();
         mpa.setId(mpaIdFromFilm);
         mpa.setName(mpa_name);
         return mpa;
     }
 
-    //TODO: доделать
+    /**
+     * Получить жанры фильма
+     *
+     * @param filmId
+     * @return
+     * @throws SQLException
+     */
     private List<Genre> getGenresForFilm(long filmId) throws SQLException {
         //Получить идентификаторы жанров фильма
         String sqlSelectGenres = "SELECT g.genre_id FROM films_genres AS fg  INNER JOIN genres AS g  ON fg.genre_id = g.genre_id  WHERE fg.film_id = ?";
@@ -311,14 +320,16 @@ public class FilmDbStorage implements FilmStorage {
             return Collections.emptyList();
         }
 
-        List<Genre> genres =  genresId.stream()
+        //Получить и создать объекты жанров
+        List<Genre> genres = genresId.stream()
                 .map(genreId -> {
                     Genre genre = new Genre();
                     genre.setId(genreId);
                     String sqlSelectNameOfGenre = "SELECT genre_name FROM genres WHERE genre_id = ?";
                     String genreName = jdbcTemplate.query(sqlSelectNameOfGenre, (rs, rowNum) -> rs.getString("genre_name"), genreId).get(0);
                     genre.setName(genreName);
-                    return genre; })
+                    return genre;
+                })
                 .collect(Collectors.toList());
 
         return genres;

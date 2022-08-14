@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.storages.GenreStorage;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @Service
 public class GenreService {
@@ -17,7 +16,6 @@ public class GenreService {
     public GenreService(GenreStorage genreStorage) {
         this.genreStorage = genreStorage;
     }
-
 
     public Optional<List<Genre>> getGenres() {
         return genreStorage.getGenres();

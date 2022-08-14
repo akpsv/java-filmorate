@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Value;
 import ru.yandex.practicum.filmorate.controllers.Validation;
 
@@ -18,7 +17,6 @@ import java.util.Set;
 @Builder(toBuilder = true)
 public class Film {
     //Идентификатор
-
     private Long id;
     //Название
     @NotBlank
@@ -36,12 +34,10 @@ public class Film {
     private int rate;
 
     private Mpa mpa;
-//    private List<Map<String, Integer>> genres;
+
     private List<Genre> genres;
     //Содержит идентификаторы пользователей поставивших лайк фильму
     private Set<Long> likes;
-
-
 
     /**
      * Принмает функцию выполняющую валидацию
@@ -52,9 +48,10 @@ public class Film {
 
     /**
      * Сопосталвение данных для использования в FilmDbStorage
+     *
      * @return
      */
-    public Map<String, Object> toMap(){
+    public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();
         values.put("film_name", name);
         values.put("description", description);
@@ -65,7 +62,6 @@ public class Film {
 
         return values;
     }
-
 }
 
 

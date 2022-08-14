@@ -47,9 +47,10 @@ public class User {
 
     /**
      * Сопосталвение данных для использования в UserDbStorage
+     *
      * @return
      */
-    public Map<String, Object> toMap(){
+    public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();
         values.put("name", name);
         values.put("login", login);
