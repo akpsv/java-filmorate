@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 import ru.yandex.practicum.filmorate.controllers.Validation;
 
@@ -17,6 +18,7 @@ import java.util.Set;
 @Builder(toBuilder = true)
 public class Film {
     //Идентификатор
+
     private Long id;
     //Название
     @NotBlank
@@ -33,8 +35,6 @@ public class Film {
     private int duration;
     private int rate;
 
-    //TODO: подумать как сделать
-//    private Map<String,Integer> mpa;
     private Mpa mpa;
 //    private List<Map<String, Integer>> genres;
     private List<Genre> genres;

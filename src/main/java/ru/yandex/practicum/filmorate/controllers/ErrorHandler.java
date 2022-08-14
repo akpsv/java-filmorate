@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.NoSuchElementException;
 
-@RestControllerAdvice(assignableTypes = {UserController.class, FilmController.class})
+@RestControllerAdvice(assignableTypes = {UserController.class, FilmController.class, MpaController.class, GenreController.class})
 public class ErrorHandler {
 
     @ExceptionHandler

@@ -78,4 +78,43 @@ class FilmDbStorageTest {
         //Проверка
         assertEquals(expectedFilm, actualFilm);
     }
+
+    @Test
+    void updateFilm() {
+        Mpa mpa1 = new Mpa();
+        mpa1.setId(1);
+        mpa1.setName("PG-10");
+
+        Genre genre = new Genre();
+        genre.setId(1);
+        Film film1 = Film.builder()
+                .name("Film 1")
+                .description("Film 1 description")
+                .releaseDate(LocalDate.EPOCH)
+                .duration(120)
+                .mpa(mpa1)
+                .genres(List.of(genre))
+                .build();
+        filmDbStorage.addFilm(film1);
+
+        Genre genreNew = new Genre();
+        genreNew.setId(2);
+        Film newFilm1 = Film.builder()
+                .id(1L)
+                .name("Film 1 new")
+                .description("Film 1 new description")
+                .releaseDate(LocalDate.EPOCH)
+                .duration(120)
+                .mpa(mpa1)
+                .genres(List.of(genreNew))
+                .build();
+
+        Film expectedFilm = newFilm1;
+
+        //Действия
+        Film actualFilm = filmDbStorage.updateFilm(newFilm1).get();
+
+        //Проверка
+        assertEquals(expectedFilm, actualFilm);
+    }
 }

@@ -1,23 +1,25 @@
 package ru.yandex.practicum.filmorate.dao_impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
+import ru.yandex.practicum.filmorate.storages.GenreStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-
+    @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -29,7 +31,7 @@ public class FilmDbStorage implements FilmStorage {
                 .usingGeneratedKeyColumns("film_id");
         long filmId = insertFilmData.executeAndReturnKey(film.toMap()).longValue();
         //Сохранить жанры
-        if (film.getGenres()!=null) {
+        if (film.getGenres() != null) {
             String sqlInsertGenres = "INSERT INTO films_genres(film_id, genre_id) VALUES(?, ?)";
             film.getGenres().stream()
                     .forEach(genre -> jdbcTemplate.update(sqlInsertGenres,
@@ -48,6 +50,7 @@ public class FilmDbStorage implements FilmStorage {
     public Optional<Film> updateFilm(Film film) {
         //Обновить лайки
         updateLikes(film);
+        updateGenres(film);
 
         String sqlUpdateUser = "UPDATE films SET film_name=?, description=?, release_date=?, duration_min=?, rate = ?, mpa = ?  WHERE film_id = ?";
         int update = jdbcTemplate.update(sqlUpdateUser,
@@ -60,20 +63,33 @@ public class FilmDbStorage implements FilmStorage {
                 film.getId()
         );
 
-        if (update==1){
-            return Optional.of(film);
-        }else {
+        //Получить обновлённый фильм из БД
+        String sqlSelectUpdatedFilm = "SELECT * FROM films WHERE film_id = ?";
+        Film updatedFilm = jdbcTemplate.queryForObject(sqlSelectUpdatedFilm, this::mapRowToFilm, film.getId());
+
+        //Получить обновлённые жанры из БД и добавить в фильм
+        String sqlSelectGenresForFilm = "SELECT g.genre_id, g.genre_name FROM films_genres AS fg INNER JOIN genres AS g ON fg.genre_id = g.genre_id WHERE fg.film_id = ?";
+        List<Genre> genres = jdbcTemplate.query(sqlSelectGenresForFilm, (rs, rowNum) -> {
+            return new Genre(rs.getInt("genre_id"), rs.getString("genre_name"));
+        }, film.getId());
+
+        Film fullUpdatedFilm = updatedFilm.toBuilder().genres(genres).build();
+
+        if (update == 1) {
+            return Optional.of(fullUpdatedFilm);
+        } else {
             return Optional.empty();
         }
     }
 
     /**
-     * Обновить список идентификаторов друзей идентификатором нового друга
-     * @param film - пользователь к которому добавляем друга
-     * @return true - если друг добалвен, иначе - false
+     * Обновить список лайков фильма
+     *
+     * @param film - фильм, лайки которого обновляются
+     * @return true - если лайки обновлены, иначе - false
      */
-    private boolean updateLikes(Film film){
-        if (film.getLikes()==null || film.getLikes().isEmpty()){
+    private boolean updateLikes(Film film) {
+        if (film.getLikes() == null || film.getLikes().isEmpty()) {
             return false;
         }
         //Получить лайки фильма находящиеся в БД
@@ -82,9 +98,9 @@ public class FilmDbStorage implements FilmStorage {
                 (rs, rowNum) -> rs.getLong("film_id"),
                 film.getId());
         //Если лайков в объекте Фильм больше чем в БД , то добавить лайк иначе удалить
-        if (film.getLikes().size()> likesFromDB.size()) {
+        if (film.getLikes().size() > likesFromDB.size()) {
             return addLikeToFilm(film, likesFromDB);
-        } else if (film.getLikes().size()< likesFromDB.size()) {
+        } else if (film.getLikes().size() < likesFromDB.size()) {
             return deleteLikeFromFilm(film, likesFromDB);
         } else {
             return false;
@@ -93,11 +109,12 @@ public class FilmDbStorage implements FilmStorage {
 
     /**
      * Добавить лайк фильму
+     *
      * @param film
      * @param likesFromDB
      * @return
      */
-    private boolean addLikeToFilm(Film film, List<Long> likesFromDB){
+    private boolean addLikeToFilm(Film film, List<Long> likesFromDB) {
         //Получить множество идентификаторов пользователей с добавленным другом
         //TODO: что-то сделать с возможным null
         Set<Long> setWithNewLike = film.getLikes();
@@ -115,11 +132,12 @@ public class FilmDbStorage implements FilmStorage {
 
     /**
      * Удалить лайк у фильма
+     *
      * @param film
      * @param likesFromDB
      * @return
      */
-    private boolean deleteLikeFromFilm(Film film, List<Long> likesFromDB){
+    private boolean deleteLikeFromFilm(Film film, List<Long> likesFromDB) {
         //Получить множество лайков из которого удалён один лайк
         //TODO: что-то сделать с возможным null
         Set<Long> setWithoutLike = film.getLikes();
@@ -130,6 +148,104 @@ public class FilmDbStorage implements FilmStorage {
         //Вставить идентификатор нового друга
         String sqlDeleteLike = "DELETE FROM likes WHERE film_id = ? AND user_id= ? ";
         jdbcTemplate.update(sqlDeleteLike, film.getId(), deletingLikeUserId);
+        return true;
+    }
+
+
+    /**
+     * Обновить список жарнов фильма
+     *
+     * @param film - фильм, список жанров которого обновляется
+     * @return true - если жанры обновлены, иначе - false
+     */
+    private boolean updateGenres(Film film) {
+        if (film.getGenres() == null) {
+            return false;
+        }
+        //Получить жанры фильма находящиеся в БД
+        String sqlSelectGenres = "SELECT genre_id FROM films_genres  WHERE film_id = ?";
+        List<Integer> genresFromDB = jdbcTemplate.query(sqlSelectGenres,
+                (rs, rowNum) -> rs.getInt("genre_id"),
+                film.getId());
+        //Если лайков в объекте Фильм больше чем в БД , то добавить лайк иначе удалить
+        List<Genre> distinctGenres = film.getGenres().stream().distinct().collect(Collectors.toList());
+        if (distinctGenres.size() > genresFromDB.size()) {
+            return addGenreToFilm(film, genresFromDB);
+        } else if (distinctGenres.size() < genresFromDB.size()) {
+            return deleteGenreFromFilm(film, genresFromDB);
+        } else {
+            return false;
+        }
+
+        //Просто замена все жанров в БД
+        //Получить объекты жанров с добавленным жанром из фильма
+
+//        List<Integer> setWithNewGenre = film.getGenres().stream()
+//                .map(genre -> genre.getId())
+//                .collect(Collectors.toList());
+//        //Добавить отсутсвующие у фильм жанры
+//        setWithNewGenre.stream()
+//                .forEach(genreId -> {
+//                    //Добавить новые жанры фильму в таблицу
+//                    String sqlInsertGenre = "INSERT INTO films_genres(film_id, genre_id) VALUES (?, ?)";
+//                    jdbcTemplate.update(sqlInsertGenre, film.getId(), genreId);
+//                });
+
+    }
+
+    /**
+     * Добавить жанр фильму
+     *
+     * @param film
+     * @param genresFromDB
+     * @return
+     */
+    private boolean addGenreToFilm(Film film, List<Integer> genresFromDB) {
+        //Получить объекты жанров с добавленным жанром из фильма
+        //TODO: что-то сделать с возможным null
+        List<Integer> setWithNewGenre = film.getGenres().stream()
+                .map(genre -> genre.getId())
+                .collect(Collectors.toList());
+
+        //Получить жанры которые необходимо добавить
+        setWithNewGenre.removeAll(genresFromDB);
+        if (setWithNewGenre.isEmpty()) {
+            return false;
+        }
+        //Добавить отсутсвующие у фильм жанры
+        setWithNewGenre.stream()
+                .forEach(genreId -> {
+                    //Добавить новые жанры фильму в таблицу
+                    String sqlInsertGenre = "INSERT INTO films_genres(film_id, genre_id) VALUES (?, ?)";
+                    jdbcTemplate.update(sqlInsertGenre, film.getId(), genreId);
+                });
+//        int newGenreId = setWithNewGenre.stream().findFirst().get();
+        //Вставить идентификатор нового друга
+//        String sqlInsertGenre = "INSERT INTO films_genres(film_id, genre_id) VALUES (?, ?)";
+//        jdbcTemplate.update(sqlInsertGenre, film.getId(), newGenreId);
+        return true;
+    }
+
+    /**
+     * Удалить жанр у фильма
+     *
+     * @param film
+     * @param genresFromDB
+     * @return
+     */
+    private boolean deleteGenreFromFilm(Film film, List<Integer> genresFromDB) {
+        //Получить объекты жанров из которых удалён один жанр из фильма
+        //TODO: что-то сделать с возможным null
+        List<Integer> setWithoutGenre = film.getGenres().stream()
+                .map(genre -> genre.getId())
+                .collect(Collectors.toList());
+        //Получить идентификатор удалённого лайка
+        genresFromDB.removeAll(setWithoutGenre);
+        long deletingGenreId = genresFromDB.get(0);
+
+        //Вставить идентификатор нового друга
+        String sqlDeleteGenre = "DELETE FROM films_genres WHERE film_id = ? AND genre_id= ? ";
+        jdbcTemplate.update(sqlDeleteGenre, film.getId(), deletingGenreId);
         return true;
     }
 
@@ -153,7 +269,6 @@ public class FilmDbStorage implements FilmStorage {
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         //Получить идентификатор фильма
         long filmId = resultSet.getLong("film_id");
-
 
         //Сформировать объект пользователя
         return Film.builder()
@@ -188,25 +303,24 @@ public class FilmDbStorage implements FilmStorage {
 
     //TODO: доделать
     private List<Genre> getGenresForFilm(long filmId) throws SQLException {
-        Genre genre = new Genre();
         //Получить идентификаторы жанров фильма
         String sqlSelectGenres = "SELECT g.genre_id FROM films_genres AS fg  INNER JOIN genres AS g  ON fg.genre_id = g.genre_id  WHERE fg.film_id = ?";
         List<Integer> genresId = jdbcTemplate.query(sqlSelectGenres, (rs, rowNum) -> rs.getInt("genre_id"), filmId);
 
-        List<Genre> genres = new ArrayList<>();
-        if (genresId.size()==0){
-            return genres;
+        if (genresId.size() == 0) {
+            return Collections.emptyList();
         }
 
-        genresId.stream()
-                .forEach(genreId ->{
+        List<Genre> genres =  genresId.stream()
+                .map(genreId -> {
+                    Genre genre = new Genre();
                     genre.setId(genreId);
                     String sqlSelectNameOfGenre = "SELECT genre_name FROM genres WHERE genre_id = ?";
                     String genreName = jdbcTemplate.query(sqlSelectNameOfGenre, (rs, rowNum) -> rs.getString("genre_name"), genreId).get(0);
                     genre.setName(genreName);
-                });
-        genres.add(genre);
-//Где то в методе надо поставить проверку , чтобы не добавлять в итоговый список пустое отображение иначе список состоит из одного элемента но пустого
+                    return genre; })
+                .collect(Collectors.toList());
+
         return genres;
     }
 }

@@ -7,8 +7,6 @@ import ru.yandex.practicum.filmorate.controllers.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 
-import javax.validation.constraints.NegativeOrZero;
-import javax.validation.constraints.Positive;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,6 +54,9 @@ public class FilmService {
      * @return
      */
     public Optional<Film> updateFilm(Film film) {
+        if (film.getId() < 1) {
+            return Optional.empty();
+        }
         return filmStorage.updateFilm(film);
     }
 
