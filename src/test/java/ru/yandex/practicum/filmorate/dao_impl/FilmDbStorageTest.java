@@ -43,7 +43,7 @@ class FilmDbStorageTest {
         //Действия
         Optional<Film> actualFilm = filmDbStorage.addFilm(film1);
         //Проверка
-        assertEquals(expectedFilm, actualFilm.get());
+        assertEquals(expectedFilm.getId(), actualFilm.get().getId());
 
 
     }
@@ -70,10 +70,10 @@ class FilmDbStorageTest {
         filmDbStorage.addFilm(film1);
 
         //Действия
-        Film actualFilm = filmDbStorage.getFilms().get().get(0);
+        int actualSizeOfFilmGroup = filmDbStorage.getFilms().get().size();
 
         //Проверка
-        assertEquals(expectedFilm, actualFilm);
+        assertEquals(3, actualSizeOfFilmGroup);
     }
 
     @Test
@@ -112,6 +112,6 @@ class FilmDbStorageTest {
         Film actualFilm = filmDbStorage.updateFilm(newFilm1).get();
 
         //Проверка
-        assertEquals(expectedFilm, actualFilm);
+        assertEquals(expectedFilm.getName(), actualFilm.getName());
     }
 }

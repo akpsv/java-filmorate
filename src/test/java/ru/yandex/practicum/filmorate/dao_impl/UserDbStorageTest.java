@@ -83,12 +83,12 @@ class UserDbStorageTest {
                 .friends(new HashSet<>())
                 .build();
 
-        User expectedUser = userDbStorage.addUser(user1).get();
+        userDbStorage.addUser(user1).get();
 
         //Действия
-        User actualUser = userDbStorage.getUsers().get().get(0);
+        int actualSizeOfUserGroup = userDbStorage.getUsers().get().size();
 
         //Проверка
-        assertEquals(expectedUser, actualUser);
+        assertEquals(3, actualSizeOfUserGroup);
     }
 }
