@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @Repository("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+
     @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -41,9 +42,9 @@ public class FilmDbStorage implements FilmStorage {
         }
         //Получить и вернуть сохранённый фильм из базы
         String sqlSelectSavedFilm = "SELECT * FROM films WHERE film_id = ?";
-        Film sevedFilmFromDb = jdbcTemplate.queryForObject(sqlSelectSavedFilm, this::mapRowToFilm, filmId);
+        Film savedFilmFromDb = jdbcTemplate.queryForObject(sqlSelectSavedFilm, this::mapRowToFilm, filmId);
 
-        return Optional.of(sevedFilmFromDb);
+        return Optional.of(savedFilmFromDb);
     }
 
     @Override
@@ -116,16 +117,13 @@ public class FilmDbStorage implements FilmStorage {
      * @return
      */
     private boolean addLikeToFilm(Film film, List<Long> likesFromDB) {
-        //Получить множество идентификаторов пользователей с добавленным другом
-        //TODO: что-то сделать с возможным null
+        //Получить множество лойков
         Set<Long> setWithNewLike = film.getLikes();
-        //Получить идентификатор добавленного друга
+        //Получить добавленный лайк
         setWithNewLike.removeAll(likesFromDB);
-        if (setWithNewLike.isEmpty()) {
-            return false;
-        }
+
         long newLikeUserId = setWithNewLike.stream().findFirst().get();
-        //Вставить идентификатор нового друга
+        //Вставить лайк
         String sqlInsertLike = "INSERT INTO likes(film_id, user_id) VALUES (?, ?)";
         jdbcTemplate.update(sqlInsertLike, film.getId(), newLikeUserId);
         return true;
@@ -244,6 +242,22 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(sqlSelectAllFilms, this::mapRowToFilm);
 
         return Optional.of(films);
+    }
+
+    /**
+     * Удалить фильм по идентификатору
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public boolean deleteFilmById(int id) {
+        String sqlDeleteFilmById = "DELETE FROM films WHERE film_id = ?";
+        if (jdbcTemplate.update(sqlDeleteFilmById) == 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

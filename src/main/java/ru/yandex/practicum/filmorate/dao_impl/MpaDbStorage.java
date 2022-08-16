@@ -15,7 +15,6 @@ import java.util.Optional;
 public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public MpaDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -25,6 +24,13 @@ public class MpaDbStorage implements MpaStorage {
         String sqlSelectMpas = "SELECT * FROM mpas";
         List<Mpa> mpas = jdbcTemplate.query(sqlSelectMpas, this::mapRowToMpa);
         return Optional.of(mpas);
+    }
+
+    @Override
+    public Optional<Mpa> getMpaById(int id) {
+        String sqlSelectMpaById = "SELECT * FROM mpas WHERE mpa_id = ?";
+        Mpa mpa = jdbcTemplate.queryForObject(sqlSelectMpaById, this::mapRowToMpa, id);
+        return Optional.of(mpa);
     }
 
     private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {

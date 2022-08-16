@@ -25,8 +25,6 @@ public class MpaService {
         if (id < 1) {
             return Optional.empty();
         }
-        return mpaStorage.getMpas().get().stream()
-                .filter(mpa -> mpa.getId() == id)
-                .findAny();
+        return mpaStorage.getMpaById(id);
     }
 }

@@ -12,4 +12,6 @@ public interface UserStorage {
     Optional<User> updateUser(User user);
 
     Optional<List<User>> getUsers();
+
+    boolean deleteUserById(int Id);
 }

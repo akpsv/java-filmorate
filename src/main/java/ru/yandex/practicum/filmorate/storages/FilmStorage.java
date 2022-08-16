@@ -12,4 +12,6 @@ public interface FilmStorage {
     Optional<Film> updateFilm(Film film);
 
     Optional<List<Film>> getFilms();
+
+    boolean deleteFilmById(int id);
 }

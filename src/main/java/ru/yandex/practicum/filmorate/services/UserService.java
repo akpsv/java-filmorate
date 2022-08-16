@@ -171,28 +171,10 @@ public class UserService {
         }
         //Если такого друга не существует вернётся исключение NoSuchElementException
         User friendUser = getUserById(friendId).get();
-        //Получить группу друзей друга
-//        Set<Long> friendsOfFriendUser = friendUser.getFriends();
-//        if (friendsOfFriendUser == null) {
-//            friendsOfFriendUser = new HashSet<>();
-//        }
-
-        //Добавить идентификатор нового друга в группу, добавить идентификатор основного пользователя в группу друзей друга,
-        // и вернуть true если их идентификаторов ещё нет в группах.
-        // Иначе вернуть false.
-//        if (friendsOfMainUser.add(friendId) && friendsOfFriendUser.add(mainUser.getId())) {
-//            mainUser = mainUser.toBuilder().friends(friendsOfMainUser).build();
-//            userStorage.updateUser(mainUser);
-//            friendUser = friendUser.toBuilder().friends(friendsOfFriendUser).build();
-//            userStorage.updateUser(friendUser);
-//            return true;
-//        }
 
         if (friendsOfMainUser.add(friendId)) {
             mainUser = mainUser.toBuilder().friends(friendsOfMainUser).build();
             userStorage.updateUser(mainUser);
-//            friendUser = friendUser.toBuilder().friends(friendsOfFriendUser).build();
-//            userStorage.updateUser(friendUser);
             return true;
         }
         return false;

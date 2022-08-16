@@ -22,9 +22,6 @@ public class GenreService {
     }
 
     public Optional<Genre> getGenreById(int id) {
-        Optional<Genre> genreBiId = genreStorage.getGenres().get().stream()
-                .filter(genre -> genre.getId() == id)
-                .findAny();
-        return genreBiId;
+        return genreStorage.getGenreById(id);
     }
 }

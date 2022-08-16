@@ -145,6 +145,17 @@ public class UserDbStorage implements UserStorage {
         return Optional.of(userList);
     }
 
+    @Override
+    public boolean deleteUserById(int Id) {
+        String sqlDeleteUserById = "DELETE FROM users WHERE user_id = ?";
+
+        if (jdbcTemplate.update(sqlDeleteUserById) == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Создать объект пользователя из строки БД
      *

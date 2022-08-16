@@ -15,7 +15,6 @@ import java.util.Optional;
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public GenreDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -25,6 +24,13 @@ public class GenreDbStorage implements GenreStorage {
         String sqlSelectGenres = "SELECT * FROM genres";
         List<Genre> genres = jdbcTemplate.query(sqlSelectGenres, this::mapRowToGenre);
         return Optional.of(genres);
+    }
+
+    @Override
+    public Optional<Genre> getGenreById(int id) {
+        String sqlSelectGenreById = "SELECT * FROM genres WHERE genre_id = ?";
+        Genre genre = jdbcTemplate.queryForObject(sqlSelectGenreById, this::mapRowToGenre, id);
+        return Optional.of(genre);
     }
 
     private Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
