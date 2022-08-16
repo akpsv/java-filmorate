@@ -61,41 +61,8 @@ public class UserController {
         return userService.getUserById(id).get();
     }
 
-    /**
-     * Добавить пользователя в друзья
-     *
-     * @param id       - идентификатор пользователя которому добавляется друг
-     * @param friendId - идентификатор добавляемого друга
-     * @return - true если друг добавлен, false если друг уже был в списке
-     * ислкючение NoSuchElementException если пользователь не найден
-     */
-    @PutMapping("/{id}/friends/{friendId}")
-    public boolean addUserToFriends(@PathVariable long id, @PathVariable long friendId) {
-        return userService.addUserToFriends(id, friendId);
-    }
 
-    /**
-     * Удалить пользователя из друзей
-     *
-     * @param id       - идентификатор пользователя чьего друга надо удалить
-     * @param friendId - идентификатор удаляемого друга
-     * @return - true, если друг удалён. false, если друга не было в списке.
-     */
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public boolean deleteUserFromFriends(@PathVariable long id, @PathVariable long friendId) {
-        return userService.deleteUserFromFriends(id, friendId);
-    }
 
-    /**
-     * Вернуть список друзей пользователя
-     *
-     * @param id - идентификатор пользователя чьих друзей надо вернуть
-     * @return - список друзей
-     */
-    @GetMapping("/{id}/friends")
-    public List<User> getFriendsForUser(@PathVariable long id) {
-        return userService.getFriendsForUser(id);
-    }
 
     /**
      * Получить список друзей, общих с другим пользователем
