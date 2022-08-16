@@ -26,6 +26,11 @@ public class FilmDbStorage implements FilmStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * Добавить фильм
+     * @param film - фильм который необходимо добавить
+     * @return film - возвращет добавленный фильм с помощью запроса из базы
+     */
     @Override
     public Optional<Film> addFilm(Film film) {
         SimpleJdbcInsert insertFilmData = new SimpleJdbcInsert(jdbcTemplate)
@@ -47,6 +52,11 @@ public class FilmDbStorage implements FilmStorage {
         return Optional.of(savedFilmFromDb);
     }
 
+    /**
+     * Обновляет уже существующий фильм
+     * @param film
+     * @return
+     */
     @Override
     public Optional<Film> updateFilm(Film film) {
         //Обновить лайки

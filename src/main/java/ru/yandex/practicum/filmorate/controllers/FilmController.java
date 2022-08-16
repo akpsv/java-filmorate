@@ -62,30 +62,6 @@ public class FilmController {
     }
 
     /**
-     * Добавить лайк фильму от пользователя
-     *
-     * @param id
-     * @param userId
-     * @return
-     */
-    @PutMapping("/{id}/like/{userId}")
-    public boolean addLike(@PathVariable long id, @PathVariable long userId) {
-        return filmService.addLike(id, userId);
-    }
-
-    /**
-     * Удалить лайк фульму от пользователя
-     *
-     * @param id
-     * @param userId
-     * @return
-     */
-    @DeleteMapping("/{id}/like/{userId}")
-    public boolean deleteLike(@PathVariable long id, @PathVariable long userId) {
-        return filmService.deleteLike(id, userId);
-    }
-
-    /**
      * Вернуть список из первых count фильмов по количеству лайков.
      * Если значение count не задано, вернуть первые 10 фильмов
      *
