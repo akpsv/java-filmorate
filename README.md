@@ -1,3 +1,4 @@
 # java-filmorate
 Template repository for Filmorate project.
-![This is an image](https://myoctocat.com/assets/images/base-octocat.svg)
+Схема БД.
+![Схема БД](https://github.com/akpsv/java-filmorate/blob/add-database/filmorate.png)
