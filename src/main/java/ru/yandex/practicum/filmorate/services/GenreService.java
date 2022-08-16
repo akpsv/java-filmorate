@@ -22,6 +22,10 @@ public class GenreService {
     }
 
     public Optional<Genre> getGenreById(int id) {
-        return genreStorage.getGenreById(id);
+        if (id < 1) {
+            return Optional.empty();
+        } else {
+            return genreStorage.getGenreById(id);
+        }
     }
 }

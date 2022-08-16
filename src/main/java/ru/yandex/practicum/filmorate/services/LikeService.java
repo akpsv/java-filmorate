@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storages.LikeStorage;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -19,7 +20,11 @@ public class LikeService {
     }
 
     public boolean deleteLike(long filmId, long userId) {
-        return likeStorage.deleteLike(filmId, userId);
+        if (userId < 1) {
+            throw new NoSuchElementException("Идентификатор удаляемого лайка не может быть меньше 1");
+        } else {
+            return likeStorage.deleteLike(filmId, userId);
+        }
     }
 
 }

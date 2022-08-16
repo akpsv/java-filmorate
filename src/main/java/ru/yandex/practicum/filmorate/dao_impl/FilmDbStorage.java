@@ -28,6 +28,7 @@ public class FilmDbStorage implements FilmStorage {
 
     /**
      * Добавить фильм
+     *
      * @param film - фильм который необходимо добавить
      * @return film - возвращет добавленный фильм с помощью запроса из базы
      */
@@ -54,6 +55,7 @@ public class FilmDbStorage implements FilmStorage {
 
     /**
      * Обновляет уже существующий фильм
+     *
      * @param film
      * @return
      */

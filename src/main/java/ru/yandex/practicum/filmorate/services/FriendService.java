@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.storages.FriendStorage;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -15,15 +14,15 @@ public class FriendService {
         this.friendStorage = friendStorage;
     }
 
-    public Optional<Friend> addFriend(long userIid, long friendId){
-        return friendStorage.addFriend(userIid, friendId);
+    public Optional<Friend> addFriend(long userIid, long friendId) {
+        if (friendId < 1) {
+            return Optional.empty();
+        } else {
+            return friendStorage.addFriend(userIid, friendId);
+        }
     }
 
-    public boolean deleteFriend(long userId, long friendId){
+    public boolean deleteFriend(long userId, long friendId) {
         return friendStorage.deleteFriend(userId, friendId);
-    }
-
-    public Optional<List<Friend>> getFriends(long userId) {
-        return friendStorage.getFriends(userId);
     }
 }

@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.storages.FriendStorage;
 
-import java.time.chrono.JapaneseDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +29,7 @@ public class FriendDbStorage implements FriendStorage {
     public Optional<Friend> addFriend(long userId, long friendId) {
         String sqlInsertFriend = "INSERT INTO friends(user_id, friend_id) VALUES(?, ?)";
         int isInserted = jdbcTemplate.update(sqlInsertFriend, userId, friendId);
-        if(isInserted==1){
+        if (isInserted == 1) {
             return Optional.of(new Friend(userId, friendId));
         } else {
             return Optional.empty();
@@ -41,7 +40,7 @@ public class FriendDbStorage implements FriendStorage {
     public boolean deleteFriend(long userId, long friendId) {
         String sqlDeleteFriend = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
         int isDeleted = jdbcTemplate.update(sqlDeleteFriend, userId, friendId);
-        if (isDeleted==1){
+        if (isDeleted == 1) {
             return true;
         } else {
             return false;

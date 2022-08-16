@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.services.LikeService;
-import ru.yandex.practicum.filmorate.storages.LikeStorage;
 
 @RestController
 public class LikeController {
@@ -16,7 +18,7 @@ public class LikeController {
     /**
      * Добавить лайк фильму от пользователя
      *
-     * @param id - идентфикатор фильма
+     * @param id     - идентфикатор фильма
      * @param userId - идентификатор пользователя поставившего лайк
      * @return Like - объект лайк
      */
@@ -28,7 +30,7 @@ public class LikeController {
     /**
      * Удалить лайк фульму от пользователя
      *
-     * @param id - ид фильма
+     * @param id     - ид фильма
      * @param userId - ид пользователя
      * @return boolean - true если получилось удалить, false если не получилось удалить
      */

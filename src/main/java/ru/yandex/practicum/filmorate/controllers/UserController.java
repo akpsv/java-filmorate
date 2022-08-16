@@ -13,6 +13,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private UserService userService;
+
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
@@ -61,7 +62,16 @@ public class UserController {
         return userService.getUserById(id).get();
     }
 
-
+    /**
+     * Вернуть список друзей пользователя
+     *
+     * @param id - идентификатор пользователя чьих друзей надо вернуть
+     * @return - список друзей
+     */
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable long id) {
+        return userService.getFriendsForUser(id);
+    }
 
 
     /**

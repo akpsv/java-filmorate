@@ -2,13 +2,11 @@ package ru.yandex.practicum.filmorate.dao_impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storages.LikeStorage;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public class LikeDbStorage implements LikeStorage {
@@ -20,6 +18,7 @@ public class LikeDbStorage implements LikeStorage {
 
     /**
      * Получить все лайки ко всем фильмам
+     *
      * @return
      */
     @Override
@@ -32,16 +31,16 @@ public class LikeDbStorage implements LikeStorage {
 
     /**
      * Добавить лайк фильму
+     *
      * @param filmId - ид фильма
      * @param userId - ид пользователя
      * @return
      */
     @Override
     public Optional<Like> addLike(long filmId, long userId) {
-
         String sqlInsertLike = "INSERT INTO likes(film_id, user_id) VALUES(?, ?)";
         int isUpdated = jdbcTemplate.update(sqlInsertLike, filmId, userId);
-        if (isUpdated==1){
+        if (isUpdated == 1) {
             return Optional.of(new Like(filmId, userId));
         } else {
             return Optional.empty();
@@ -50,6 +49,7 @@ public class LikeDbStorage implements LikeStorage {
 
     /**
      * Удалить лайк фильму
+     *
      * @param filmId - ид фильма
      * @param userId - ид пользователя
      * @return
@@ -58,7 +58,7 @@ public class LikeDbStorage implements LikeStorage {
     public boolean deleteLike(long filmId, long userId) {
         String sqlDeleteLike = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
         int isDeleted = jdbcTemplate.update(sqlDeleteLike, filmId, userId);
-        if (isDeleted==1){
+        if (isDeleted == 1) {
             return true;
         } else {
             return false;

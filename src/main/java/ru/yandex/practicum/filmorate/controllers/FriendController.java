@@ -1,31 +1,20 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Friend;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.services.FriendService;
-
-import java.util.List;
 
 @RestController
 public class FriendController {
     private final FriendService friendService;
 
-
     public FriendController(FriendService friendService) {
         this.friendService = friendService;
     }
 
-    /**
-     * Вернуть список друзей пользователя
-     *
-     * @param id - идентификатор пользователя чьих друзей надо вернуть
-     * @return - список друзей
-     */
-    @GetMapping("/users/{id}/friends")
-    public List<Friend> getFriends(@PathVariable long id) {
-        return friendService.getFriends(id).get();
-    }
     /**
      * Добавить пользователя в друзья
      *

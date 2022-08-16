@@ -116,9 +116,6 @@ public class UserService {
             //Проверить поле имени. Если оно не заполнено, то установить значение из поля логин
             user = user.validate(changeNameIfBlank);
             //Присвоить пользователю идентификатор
-//            user = user.toBuilder().id(idGenerator()).friends(new HashSet<>()).build();
-
-//            users.put(user.getId(), user);
             Optional<User> addedUser = userStorage.addUser(user);
             log.info("В группу пользователей добавлен пользователь: {}", user.getLogin());
             return addedUser;
@@ -127,8 +124,6 @@ public class UserService {
             throw exception;
         }
     }
-
-    /////////////////////////////////////////////////////////////////////////
 
     /**
      * Обновить существующего пользователя в группе

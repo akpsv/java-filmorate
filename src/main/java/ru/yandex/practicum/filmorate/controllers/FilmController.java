@@ -7,8 +7,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.services.FilmService;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Slf4j
 @RestController
@@ -23,6 +21,7 @@ public class FilmController {
 
     /**
      * Получить фильмы
+     *
      * @return
      */
     @GetMapping
@@ -32,6 +31,7 @@ public class FilmController {
 
     /**
      * Добавить фильм в группу
+     *
      * @param film
      * @return - добавленный фильм
      */
@@ -42,6 +42,7 @@ public class FilmController {
 
     /**
      * Обновить фильм в группе
+     *
      * @param film
      * @return
      */
